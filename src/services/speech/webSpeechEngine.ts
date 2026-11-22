@@ -18,7 +18,7 @@ function formatSpeechError(errorCode: string): string {
     case 'audio-capture':
       return 'Aucun microphone détecté ou micro occupé par une autre application.';
     case 'network':
-      return "Le service Web Speech du navigateur est inaccessible (erreur réseau — fréquent sur Chromium/Brave sous Linux sans clé Google). Essayez dans Google Chrome officiel ou testez le moteur local Whisper sur la branche feat/whisper-webgpu-stt.";
+      return "Le service Web Speech du navigateur est inaccessible (erreur réseau — fréquent sur Chromium/Brave sous Linux). Basculez sur « Whisper Local (IA) » ci-dessus pour dicter sans dépendre du cloud Google.";
     case 'language-not-supported':
       return "La langue française (fr-FR) n'est pas prise en charge par le moteur vocal de ce navigateur.";
     default:

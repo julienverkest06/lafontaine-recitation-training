@@ -9,7 +9,8 @@
     "react/react-in-jsx-scope": "off",
     "react-hooks/rules-of-hooks": "error",
     "react-hooks/exhaustive-deps": "warn",
-    "unicorn/no-null": "off"
+    "unicorn/no-null": "off",
+    "unicorn/require-post-message-target-origin": "off"
   },
   "ignorePatterns": ["dist", "node_modules", "coverage"]
 }

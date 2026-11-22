@@ -2,6 +2,10 @@ export type SpeechEngineId = 'web-speech' | 'whisper-webgpu';
 
 export type SpeechEngineStatus = 'idle' | 'loading-model' | 'listening' | 'error';
 
+export type WhisperModelVariant = 'base' | 'small';
+
+export type InferenceDevice = 'webgpu' | 'wasm';
+
 export interface SpeechAudioState {
   micActive: boolean;
   soundDetected: boolean;
@@ -27,6 +31,7 @@ export interface SpeechEngineCallbacks {
   onStatusChange: (status: SpeechEngineStatus, error?: string) => void;
   onAudioStateChange?: (state: SpeechAudioState) => void;
   onProgress?: (progress: number) => void;
+  onDeviceDetected?: (device: InferenceDevice) => void;
 }
 
 export interface SpeechEngine {
@@ -34,6 +39,7 @@ export interface SpeechEngine {
   readonly label: string;
   isSupported(): boolean;
   start(options: SpeechStartOptions, callbacks: SpeechEngineCallbacks): Promise<void> | void;
+  updateContext?(options: Partial<SpeechStartOptions>): void;
   resetTranscriptBuffer?(): void;
   stop(): void;
   dispose(): void;
