@@ -1,35 +1,21 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+
+@theme {
+  --font-serif: "Cormorant Garamond", "Playfair Display", Georgia, serif;
+}
 
 @layer base {
   body {
-    @apply bg-gray-50;
+    @apply bg-gray-50 text-gray-900 antialiased;
     position: relative;
   }
 
-  /* .background-container {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    z-index: -2;
-    background-image: url('/girl-reading.jpg');
-    background-repeat: no-repeat;
-    background-position: bottom right;
-    background-size: contain;
-    background-attachment: fixed;
-  } */
-
   .background-overlay {
     position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
+    inset: 0;
     z-index: -1;
-    background: linear-gradient(to bottom right, 
+    background: linear-gradient(
+      to bottom right,
       rgba(238, 242, 255, 0.85),
       rgba(250, 245, 255, 0.65)
     );
@@ -38,9 +24,10 @@
 
 .elegant-title {
   font-family: 'Cormorant Garamond', serif;
-  @apply relative inline-block text-center;
-  color: #4F46E5;
   position: relative;
+  display: inline-block;
+  text-align: center;
+  color: #4f46e5;
   padding: 0.5em 2em;
   letter-spacing: 0.05em;
 }
@@ -71,7 +58,8 @@
 }
 
 @keyframes float {
-  0%, 100% {
+  0%,
+  100% {
     transform: translateY(0);
   }
   50% {
@@ -81,7 +69,10 @@
 
 .elegant-subtitle {
   font-family: 'Playfair Display', serif;
-  @apply text-indigo-600 italic relative inline-block;
+  color: #4f46e5;
+  font-style: italic;
+  position: relative;
+  display: inline-block;
   padding: 0 2em;
 }
 
@@ -92,7 +83,7 @@
   font-size: 1.5rem;
   top: 50%;
   transform: translateY(-50%);
-  @apply text-indigo-400;
+  color: #818cf8;
 }
 
 .elegant-subtitle::before {
@@ -103,7 +94,6 @@
   right: 0.5em;
 }
 
-/* Ajout d'une animation de survol sur le titre */
 .elegant-title:hover span {
   animation-play-state: paused;
 }

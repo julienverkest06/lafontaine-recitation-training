@@ -1,70 +1,86 @@
 import { useState, useEffect } from 'react';
 import { Menu as MenuIcon } from 'lucide-react';
-import { getRecitedVerses } from '../../utils/localStorage';
 import { PoemList } from '../PoemList';
-import { Poem, RecitedVerses } from '../../types/poetry';
-import type { Difficulty } from '../recitation-area/DifficultySelector';
+import type {
+  AppMode,
+  Difficulty,
+  Poem,
+  ReaderViewMode,
+  RecitedVersesMap,
+} from '../../types/poetry';
+import { cn } from '../../lib/utils';
 import { CollapsibleSection } from './CollapsibleSection';
 import { MenuHeader } from './MenuHeader';
+import { ReaderMenuSection } from './ReaderMenuSection';
 import { RecitedVersesList } from './RecitedVersesList';
 
 interface SideMenuProps {
   versesCount: number;
   poems: Poem[];
-  onSelectPoem: (poem: Poem) => void;
+  recitedVerses: RecitedVersesMap;
+  completedPoemIds: Set<string>;
+  mode: AppMode;
+  readerView: ReaderViewMode;
   selectedPoemId: string | null;
+  isPinned: boolean;
+  isFocused: boolean;
+  difficulty: Difficulty;
+  onPinnedChange: (pinned: boolean) => void;
+  onSelectPoem: (poem: Poem) => void;
+  onReadPoem: (poem: Poem) => void;
+  onOpenAnthology: () => void;
 }
 
-export function SideMenu({ versesCount, poems, onSelectPoem, selectedPoemId }: SideMenuProps) {
-  const [isOpen, setIsOpen] = useState(false);
-  const [isPinned, setIsPinned] = useState(false);
-  const [isFocused, setIsFocused] = useState(false);
-  const [currentDifficulty, setCurrentDifficulty] = useState<Difficulty>('easy');
-  const recitedVerses = getRecitedVerses();
+const BLUR_AMOUNT: Record<Difficulty, string> = {
+  easy: 'backdrop-blur-[2px]',
+  medium: 'backdrop-blur-[3px]',
+  hard: 'backdrop-blur-[4px]',
+};
 
-  const isPoemCompleted = (poemId: string) => {
-    const poem = poems.find(p => p.id.toString() === poemId);
-    const verses = recitedVerses[poemId];
-    return poem && verses && verses.lines.length === poem.content.length;
-  };
+export function SideMenu({
+  versesCount,
+  poems,
+  recitedVerses,
+  completedPoemIds,
+  mode,
+  readerView,
+  selectedPoemId,
+  isPinned,
+  isFocused,
+  difficulty,
+  onPinnedChange,
+  onSelectPoem,
+  onReadPoem,
+  onOpenAnthology,
+}: SideMenuProps) {
+  const [isOpen, setIsOpen] = useState(isPinned);
 
   useEffect(() => {
     const handleResize = () => {
       const isLargeScreen = window.innerWidth >= 1024;
       setIsOpen(isLargeScreen);
-      setIsPinned(isLargeScreen);
+      onPinnedChange(isLargeScreen);
     };
 
     handleResize();
     window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, [onPinnedChange]);
 
-    const handleFocusChange = (event: CustomEvent) => {
-      setIsFocused(event.detail.isFocused);
-      setCurrentDifficulty(event.detail.difficulty);
-    };
-
-    window.addEventListener('recitationFocusChange', handleFocusChange as EventListener);
-
-    return () => {
-      window.removeEventListener('resize', handleResize);
-      window.removeEventListener('recitationFocusChange', handleFocusChange as EventListener);
-    };
-  }, []);
-
-  const blurAmount = {
-    easy: 'backdrop-blur-[2px]',
-    medium: 'backdrop-blur-[3px]',
-    hard: 'backdrop-blur-[4px]'
-  }[currentDifficulty];
+  const closeIfDrawer = () => {
+    if (!isPinned) setIsOpen(false);
+  };
 
   return (
     <>
       {!isPinned && (
         <button
+          type="button"
           onClick={() => setIsOpen(true)}
-          className={`fixed left-4 top-4 z-40 bg-white/90 backdrop-blur-sm rounded-lg shadow-lg p-3 hover:bg-gray-50 transition-colors ${
-            isFocused ? 'opacity-50' : ''
-          }`}
+          className={cn(
+            'fixed left-4 top-4 z-40 bg-white/90 backdrop-blur-sm rounded-lg shadow-lg p-3 hover:bg-gray-50 transition-colors',
+            isFocused && 'opacity-50'
+          )}
           aria-label="Ouvrir le menu"
         >
           <MenuIcon className="w-6 h-6 text-indigo-600" />
@@ -73,52 +89,74 @@ export function SideMenu({ versesCount, poems, onSelectPoem, selectedPoemId }: S
 
       {isOpen && !isPinned && (
         <div
-          className={`fixed inset-0 bg-black/20 ${isFocused ? blurAmount : ''} z-40`}
+          className={cn(
+            'fixed inset-0 bg-black/20 z-40',
+            isFocused && BLUR_AMOUNT[difficulty]
+          )}
           onClick={() => setIsOpen(false)}
+          aria-hidden="true"
         />
       )}
 
-      <div className={`fixed top-0 left-0 h-full w-96 bg-white shadow-2xl z-50 transform transition-transform duration-300 ease-in-out ${
-        isPinned ? 'translate-x-0' : isOpen ? 'translate-x-0' : '-translate-x-full'
-      } ${isFocused ? 'opacity-50' : ''}`}>
+      <aside
+        aria-label="Navigation principale"
+        className={cn(
+          'fixed top-0 left-0 h-full w-full max-w-sm sm:w-96 bg-white shadow-2xl z-50 transform transition-transform duration-300 ease-in-out',
+          isPinned || isOpen ? 'translate-x-0' : '-translate-x-full',
+          isFocused && 'opacity-50'
+        )}
+      >
         <div className="h-full flex flex-col">
-          <MenuHeader 
+          <MenuHeader
             isPinned={isPinned}
-            setIsPinned={setIsPinned}
+            setIsPinned={(nextPinned) => {
+              onPinnedChange(nextPinned);
+              setIsOpen(nextPinned);
+            }}
             onClose={() => setIsOpen(false)}
           />
 
           <div className="flex-1 overflow-y-auto">
-            <CollapsibleSection 
-              title="Récitez des fables" 
-              emoji="📚"
-              defaultOpen={true}
-            >
+            <CollapsibleSection title="Récitez des fables" emoji="📚" defaultOpen={true}>
               <PoemList
                 poems={poems}
                 onSelectPoem={(poem) => {
                   onSelectPoem(poem);
-                  if (!isPinned) setIsOpen(false);
+                  closeIfDrawer();
                 }}
-                selectedPoemId={selectedPoemId}
+                selectedPoemId={mode === 'recite' ? selectedPoemId : null}
+                completedPoemIds={completedPoemIds}
               />
             </CollapsibleSection>
 
-            <CollapsibleSection 
-              title="Vers récités" 
-              emoji="✨"
-            >
-              <RecitedVersesList 
+            <CollapsibleSection title="Lire les fables" emoji="📖" defaultOpen={true}>
+              <ReaderMenuSection
+                poems={poems}
+                mode={mode}
+                readerView={readerView}
+                selectedPoemId={selectedPoemId}
+                completedPoemIds={completedPoemIds}
+                onReadPoem={(poem) => {
+                  onReadPoem(poem);
+                  closeIfDrawer();
+                }}
+                onOpenAnthology={() => {
+                  onOpenAnthology();
+                  closeIfDrawer();
+                }}
+              />
+            </CollapsibleSection>
+
+            <CollapsibleSection title="Vers récités" emoji="✨">
+              <RecitedVersesList
                 versesCount={versesCount}
-                recitedVerses={recitedVerses as unknown as RecitedVerses}
-                isPoemCompleted={(poemId: string) => !!isPoemCompleted(poemId)}
+                recitedVerses={recitedVerses}
+                isPoemCompleted={(poemId: string) => completedPoemIds.has(poemId)}
               />
             </CollapsibleSection>
           </div>
         </div>
-      </div>
-
-      {isPinned && <div className="w-96" />}
+      </aside>
     </>
   );
 }

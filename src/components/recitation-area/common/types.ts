@@ -1,4 +1,4 @@
-import { Poem } from '../../../types/poetry';
+import type { Difficulty, Poem } from '../../../types/poetry';
 
 export type RecitationMode = 'text' | 'voice';
 
@@ -13,10 +13,13 @@ export interface RecitationState {
 export interface RecitationHandlers {
   onValidation: (validatedLines: boolean[]) => void;
   onTextChange: (text: string, lineIndex: number) => void;
+  onFocusChange: (isFocused: boolean) => void;
 }
 
 export interface BaseRecitationProps extends RecitationHandlers {
   poem: Poem;
+  difficulty: Difficulty;
+  onDifficultyChange: (difficulty: Difficulty) => void;
   onModeSwitch: () => void;
 }
 

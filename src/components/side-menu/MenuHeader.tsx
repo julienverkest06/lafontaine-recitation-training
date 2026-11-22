@@ -1,4 +1,5 @@
 import { Pin, X } from 'lucide-react';
+import { cn } from '../../lib/utils';
 import { MenuLogo } from './MenuLogo';
 
 interface MenuHeaderProps {
@@ -16,14 +17,22 @@ export function MenuHeader({ isPinned, setIsPinned, onClose }: MenuHeaderProps) 
         </div>
         <div className="flex items-center gap-2">
           <button
+            type="button"
             onClick={() => setIsPinned(!isPinned)}
             className="hidden lg:flex p-2 hover:bg-gray-100 rounded-lg transition-colors"
-            aria-label={isPinned ? "Détacher le menu" : "Épingler le menu"}
+            aria-label={isPinned ? 'Détacher le menu' : 'Épingler le menu'}
+            title={isPinned ? 'Détacher le menu' : 'Épingler le menu'}
           >
-            <Pin className={`w-5 h-5 text-indigo-600 transition-transform ${isPinned ? 'rotate-45' : ''}`} />
+            <Pin
+              className={cn(
+                'w-5 h-5 text-indigo-600 transition-transform',
+                isPinned && 'rotate-45'
+              )}
+            />
           </button>
           {!isPinned && (
             <button
+              type="button"
               onClick={onClose}
               className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
               aria-label="Fermer le menu"

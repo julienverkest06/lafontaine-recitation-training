@@ -1,17 +1,15 @@
-import React, { KeyboardEvent } from 'react';
+import type { ReactNode } from 'react';
+import { cn } from '../../lib/utils';
 
 interface CardProps {
-  children: React.ReactNode;
+  children: ReactNode;
   className?: string;
-  onKeyDown?: (e: KeyboardEvent<HTMLDivElement>) => void;
-  tabIndex?: number;
 }
 
-const Card: React.FC<CardProps> = ({ children, className = '', onKeyDown, tabIndex }) => {
+export default function Card({ children, className }: CardProps) {
   return (
-    <div className={`bg-white rounded-lg shadow-md p-6 ${className}`} onKeyDown={onKeyDown} tabIndex={tabIndex}>
+    <div className={cn('bg-white rounded-lg shadow-md p-6', className)}>
       {children}
     </div>
   );
 }
-export default Card;

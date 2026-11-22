@@ -1,16 +1,19 @@
-import React, { forwardRef }  from 'react';
+import type { Ref, TextareaHTMLAttributes } from 'react';
+import { cn } from '../../lib/utils';
 
-interface TextareaProps extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {
-  className?: string;
+interface TextareaProps extends TextareaHTMLAttributes<HTMLTextAreaElement> {
+  ref?: Ref<HTMLTextAreaElement>;
 }
 
-const CustomTextarea = forwardRef<HTMLTextAreaElement, TextareaProps>(({ className = '', ...props }) => {
+export default function CustomTextarea({ className, ref, ...props }: TextareaProps) {
   return (
     <textarea
-      className={`w-full rounded-lg border border-gray-300 p-3 focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition-all ${className}`}
+      ref={ref}
+      className={cn(
+        'w-full rounded-lg border border-gray-300 p-3 focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition-all',
+        className
+      )}
       {...props}
     />
   );
-});
-
-export default CustomTextarea
+}

@@ -1,62 +1,131 @@
+import type { ReaderPreferences, RecitedVersesMap } from '../types/poetry';
+
 const VERSES_COUNT_KEY = 'recitedVerses';
 const RECITED_VERSES_KEY = 'recitedVersesDetails';
 const LAST_SELECTED_POEM_KEY = 'lastSelectedPoem';
 const HAS_VISITED_KEY = 'hasVisited';
+const READER_PREFERENCES_KEY = 'readerPreferences';
 
-interface RecitedVerse {
-  poemTitle: string;
-  lines: string[];
+const DEFAULT_READER_PREFERENCES: ReaderPreferences = {
+  showLineNumbers: true,
+  fontSize: 'md',
+  view: 'single',
+};
+
+function safeGetItem(key: string): string | null {
+  try {
+    return localStorage.getItem(key);
+  } catch {
+    return null;
+  }
 }
 
-interface RecitedVerses {
-  [poemId: string]: RecitedVerse;
+function safeSetItem(key: string, value: string): void {
+  try {
+    localStorage.setItem(key, value);
+  } catch {
+    // Ignore storage quota or private browsing errors
+  }
 }
 
 export const getVersesCount = (): number => {
-  const count = localStorage.getItem(VERSES_COUNT_KEY);
-  return count ? parseInt(count, 10) : 0;
+  const count = safeGetItem(VERSES_COUNT_KEY);
+  const parsed = count ? Number.parseInt(count, 10) : 0;
+  return Number.isNaN(parsed) ? 0 : parsed;
 };
 
 export const incrementVersesCount = (amount: number = 1): number => {
   const currentCount = getVersesCount();
   const newCount = currentCount + amount;
-  localStorage.setItem(VERSES_COUNT_KEY, newCount.toString());
+  safeSetItem(VERSES_COUNT_KEY, newCount.toString());
   return newCount;
 };
 
-export const getRecitedVerses = (): RecitedVerses => {
-  const verses = localStorage.getItem(RECITED_VERSES_KEY);
-  return verses ? JSON.parse(verses) : {};
+export const getRecitedVerses = (): RecitedVersesMap => {
+  const raw = safeGetItem(RECITED_VERSES_KEY);
+  if (!raw) return {};
+
+  try {
+    const parsed: unknown = JSON.parse(raw);
+    if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
+      return parsed as RecitedVersesMap;
+    }
+    return {};
+  } catch {
+    return {};
+  }
 };
 
 export const addRecitedVerse = (
   poemId: string,
   poemTitle: string,
   line: string
-): void => {
+): RecitedVersesMap => {
   const verses = getRecitedVerses();
-  if (!verses[poemId]) {
-    verses[poemId] = {
-      poemTitle,
-      lines: []
+  const existing = verses[poemId] ?? { poemTitle, lines: [] };
+
+  if (!existing.lines.includes(line)) {
+    const updated: RecitedVersesMap = {
+      ...verses,
+      [poemId]: {
+        poemTitle,
+        lines: [...existing.lines, line],
+      },
     };
+    safeSetItem(RECITED_VERSES_KEY, JSON.stringify(updated));
+    return updated;
   }
-  if (!verses[poemId].lines.includes(line)) {
-    verses[poemId].lines.push(line);
-    localStorage.setItem(RECITED_VERSES_KEY, JSON.stringify(verses));
-  }
+
+  return verses;
 };
 
 export const saveLastSelectedPoem = (poemId: number): void => {
-  localStorage.setItem(LAST_SELECTED_POEM_KEY, poemId.toString());
-  localStorage.setItem(HAS_VISITED_KEY, 'true');
+  safeSetItem(LAST_SELECTED_POEM_KEY, poemId.toString());
+  safeSetItem(HAS_VISITED_KEY, 'true');
 };
 
 export const getLastSelectedPoem = (): number | null => {
-  const poemId = localStorage.getItem(LAST_SELECTED_POEM_KEY);
-  return poemId ? parseInt(poemId, 10) : null;
+  const poemId = safeGetItem(LAST_SELECTED_POEM_KEY);
+  if (!poemId) return null;
+  const parsed = Number.parseInt(poemId, 10);
+  return Number.isNaN(parsed) ? null : parsed;
 };
 
 export const hasVisitedBefore = (): boolean => {
-  return localStorage.getItem(HAS_VISITED_KEY) === 'true';
+  return safeGetItem(HAS_VISITED_KEY) === 'true';
+};
+
+export const getReaderPreferences = (): ReaderPreferences => {
+  const raw = safeGetItem(READER_PREFERENCES_KEY);
+  if (!raw) return DEFAULT_READER_PREFERENCES;
+
+  try {
+    const parsed: unknown = JSON.parse(raw);
+    if (parsed && typeof parsed === 'object') {
+      const candidate = parsed as Partial<ReaderPreferences>;
+      return {
+        showLineNumbers:
+          typeof candidate.showLineNumbers === 'boolean'
+            ? candidate.showLineNumbers
+            : DEFAULT_READER_PREFERENCES.showLineNumbers,
+        fontSize:
+          candidate.fontSize === 'sm' ||
+          candidate.fontSize === 'md' ||
+          candidate.fontSize === 'lg'
+            ? candidate.fontSize
+            : DEFAULT_READER_PREFERENCES.fontSize,
+        view:
+          candidate.view === 'single' || candidate.view === 'anthology'
+            ? candidate.view
+            : DEFAULT_READER_PREFERENCES.view,
+      };
+    }
+    return DEFAULT_READER_PREFERENCES;
+  } catch {
+    return DEFAULT_READER_PREFERENCES;
+  }
+};
+
+export const saveReaderPreferences = (preferences: ReaderPreferences): void => {
+  safeSetItem(READER_PREFERENCES_KEY, JSON.stringify(preferences));
 };

@@ -1,10 +1,11 @@
-// Fonction utilitaire pour la gestion des ponctuations avec espace avant
+import type { CharMatchStatus } from '../types/poetry';
+
 const PUNCTUATION_WITH_SPACE = [' :', ' ;', ' !', ' ?'];
-const SIMPLE_PUNCTUATION = /[.,«»""''()\-—]/;
+const SIMPLE_PUNCTUATION = /[.,«»""''()\-—:;!?…]/;
 
 function isPunctuationWithSpace(str: string, index: number): boolean {
   if (index === 0) return false;
-  
+
   for (const punct of PUNCTUATION_WITH_SPACE) {
     if (str.slice(index - 1, index + punct.length - 1) === punct) {
       return true;
@@ -17,36 +18,40 @@ function isSimplePunctuation(char: string): boolean {
   return SIMPLE_PUNCTUATION.test(char);
 }
 
-export function normalizeText(text: string): string {
-  const normalized = text
-    .trim()
+function stripAccents(str: string): string {
+  return str
     .toLowerCase()
     .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, ''); // Remove accents
+    .replace(/[\u0300-\u036f]/g, '');
+}
+
+function normalizeChar(char: string): string {
+  return stripAccents(char).replace(/œ/g, 'oe').replace(/æ/g, 'ae');
+}
+
+export function normalizeText(text: string): string {
+  const normalized = stripAccents(text.trim())
+    .replace(/œ/g, 'oe')
+    .replace(/æ/g, 'ae');
 
   let result = '';
   for (let i = 0; i < normalized.length; i++) {
-    // Ignorer les caractères de ponctuation avec espace avant
     if (isPunctuationWithSpace(normalized, i)) {
       continue;
     }
-    // Ignorer la ponctuation simple
     if (isSimplePunctuation(normalized[i])) {
       continue;
     }
     result += normalized[i];
   }
 
-  return result
-    .replace(/\s+/g, ' ') // Normalize spaces
-    .replace(/œ/g, 'oe') // Replace œ ligature
-    .trim();
+  return result.replace(/\s+/g, ' ').trim();
 }
 
 export function validateLine(recited: string, original: string): boolean {
-  const normalizedRecited = normalizeText(recited);
   const normalizedOriginal = normalizeText(original);
-  return normalizedRecited === normalizedOriginal;
+  if (!normalizedOriginal) return false;
+  return normalizeText(recited) === normalizedOriginal;
 }
 
 export function validateRecitation(recited: string[], original: string[]): boolean[] {
@@ -56,56 +61,47 @@ export function validateRecitation(recited: string[], original: string[]): boole
   });
 }
 
-export function compareCharacters(typed: string, original: string): boolean[] {
-  const normalizedTyped = typed.toLowerCase();
-  const normalizedOriginal = original.toLowerCase();
-  
-  const results: boolean[] = [];
+function extractComparableLetters(text: string): string {
+  return normalizeText(text).replace(/\s+/g, '');
+}
+
+export function compareCharacters(typed: string, original: string): CharMatchStatus[] {
+  const typedLetters = extractComparableLetters(typed);
+  const results: CharMatchStatus[] = [];
   let typedIndex = 0;
-  
-  for (let i = 0; i < normalizedOriginal.length; i++) {
-    const originalChar = normalizedOriginal[i];
-    
-    // Gestion des ponctuations avec espace avant
-    if (isPunctuationWithSpace(normalizedOriginal, i)) {
-      results.push(true);
+
+  for (let i = 0; i < original.length; i++) {
+    const originalChar = original[i];
+
+    if (
+      isPunctuationWithSpace(original, i) ||
+      isSimplePunctuation(originalChar) ||
+      /\s/.test(originalChar)
+    ) {
+      results.push(typedIndex > 0 && typedIndex <= typedLetters.length ? 'correct' : 'pending');
       continue;
     }
-    
-    // Gestion des ponctuations simples
-    if (isSimplePunctuation(originalChar)) {
-      results.push(true);
+
+    const expectedSequence = normalizeChar(originalChar);
+
+    if (typedIndex >= typedLetters.length) {
+      results.push('pending');
       continue;
     }
-    
-    // Gestion des espaces
-    if (/\s/.test(originalChar)) {
-      results.push(true);
-      continue;
+
+    const slice = typedLetters.slice(typedIndex, typedIndex + expectedSequence.length);
+    if (slice === expectedSequence) {
+      results.push('correct');
+      typedIndex += expectedSequence.length;
+    } else if (expectedSequence.length > 1 && expectedSequence.startsWith(slice)) {
+      // Partial ligature match (e.g. user typed 'o' on the way to 'oe' for 'œ')
+      results.push('correct');
+      typedIndex += slice.length;
+    } else {
+      results.push('incorrect');
+      typedIndex += Math.min(expectedSequence.length, typedLetters.length - typedIndex);
     }
-    
-    // Si on a dépassé la longueur du texte tapé
-    if (typedIndex >= normalizedTyped.length) {
-      results.push(false);
-      continue;
-    }
-    
-    // On cherche le prochain caractère non-ponctuation dans le texte tapé
-    while (typedIndex < normalizedTyped.length && 
-           (isSimplePunctuation(normalizedTyped[typedIndex]) || 
-            /\s/.test(normalizedTyped[typedIndex]) ||
-            isPunctuationWithSpace(normalizedTyped, typedIndex))) {
-      typedIndex++;
-    }
-    
-    // Comparaison des caractères
-    results.push(
-      typedIndex < normalizedTyped.length && 
-      normalizedTyped[typedIndex] === originalChar
-    );
-    
-    typedIndex++;
   }
-  
+
   return results;
 }

@@ -1,31 +1,42 @@
 import { useState } from 'react';
-import { RecitationProps } from '../../types/poetry';
-import { RecitationMode } from './common/types';
+import type { RecitationProps } from '../../types/poetry';
+import type { RecitationMode } from './common/types';
 import { TextRecitation } from './modes/text/TextRecitation';
 import { VoiceRecitation } from './modes/voice/VoiceRecitation';
 
-export function RecitationArea({ poem, onValidation, onTextChange }: RecitationProps) {
+const noop = () => {};
+
+export function RecitationArea({
+  poem,
+  difficulty,
+  onDifficultyChange,
+  onValidation,
+  onTextChange,
+  onFocusChange,
+  onResetProgress,
+}: RecitationProps) {
   const [mode, setMode] = useState<RecitationMode>('text');
 
   if (!poem) return null;
 
   const toggleMode = () => {
-    setMode(prev => prev === 'text' ? 'voice' : 'text');
+    onResetProgress?.();
+    setMode((prev) => (prev === 'text' ? 'voice' : 'text'));
+  };
+
+  const sharedProps = {
+    poem,
+    difficulty,
+    onDifficultyChange,
+    onValidation,
+    onTextChange: onTextChange ?? noop,
+    onFocusChange: onFocusChange ?? noop,
+    onModeSwitch: toggleMode,
   };
 
   return mode === 'text' ? (
-    <TextRecitation
-      poem={poem}
-      onValidation={onValidation}
-      onTextChange={onTextChange || (() => {})}
-      onModeSwitch={toggleMode}
-    />
+    <TextRecitation key={poem.id} {...sharedProps} />
   ) : (
-    <VoiceRecitation
-      poem={poem}
-      onValidation={onValidation}
-      onTextChange={onTextChange || (() => {})}
-      onModeSwitch={toggleMode}
-    />
+    <VoiceRecitation key={poem.id} {...sharedProps} />
   );
 }
