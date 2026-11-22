@@ -1,4 +1,4 @@
-import type { Difficulty, Poem } from '../../../types/poetry';
+import type { Difficulty, Poem, WordMatchStatus } from '../../../types/poetry';
 
 export type RecitationMode = 'text' | 'voice';
 
@@ -13,6 +13,7 @@ export interface RecitationState {
 export interface RecitationHandlers {
   onValidation: (validatedLines: boolean[]) => void;
   onTextChange: (text: string, lineIndex: number) => void;
+  onWordStatusesChange?: (statuses: WordMatchStatus[] | null, lineIndex: number) => void;
   onFocusChange: (isFocused: boolean) => void;
 }
 

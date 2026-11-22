@@ -1,13 +1,69 @@
 import { Quote } from 'lucide-react';
 import { VERSES_PER_SECTION } from '../constants/recitation';
-import type { Difficulty, PoemDisplayProps } from '../types/poetry';
+import type { Difficulty, PoemDisplayProps, WordMatchStatus } from '../types/poetry';
 import { compareCharacters } from '../utils/validation';
 import { cn } from '../lib/utils';
 import Card from './ui/Card';
 
 function maskForMediumDifficulty(line: string): string {
-  return line.replace(/([A-Za-zÀ-ÖØ-öø-ÿœŒæÆ])([A-Za-zÀ-ÖØ-öø-ÿœŒæÆ']*)/g, (_match, first: string, rest: string) => {
-    return first + '•'.repeat(rest.length);
+  return line.replace(
+    /([A-Za-zÀ-ÖØ-öø-ÿœŒæÆ])([A-Za-zÀ-ÖØ-öø-ÿœŒæÆ']*)/g,
+    (_match, first: string, rest: string) => first + '•'.repeat(rest.length)
+  );
+}
+
+function renderSpokenWordHighlight(line: string, wordStatuses: WordMatchStatus[]) {
+  const segments = line.split(/(\s+)/);
+  let wordIndex = 0;
+
+  return segments.map((segment, segIdx) => {
+    if (/^\s+$/.test(segment)) {
+      return <span key={segIdx}>{segment}</span>;
+    }
+
+    const subWords = segment.split("'");
+    if (subWords.length > 1) {
+      return (
+        <span key={segIdx}>
+          {subWords.map((part, partIdx) => {
+            const hasLetters = /[A-Za-zÀ-ÖØ-öø-ÿœŒæÆ]/.test(part);
+            const status = hasLetters ? (wordStatuses[wordIndex++] ?? 'pending') : 'pending';
+            return (
+              <span key={partIdx}>
+                <span
+                  className={cn(
+                    'transition-colors',
+                    status === 'matched' && 'text-green-600 font-medium',
+                    status === 'pending' && 'text-gray-400',
+                    status === 'missed' && 'text-amber-600 underline decoration-dotted'
+                  )}
+                >
+                  {part}
+                </span>
+                {partIdx < subWords.length - 1 ? "'" : ''}
+              </span>
+            );
+          })}
+        </span>
+      );
+    }
+
+    const hasLetters = /[A-Za-zÀ-ÖØ-öø-ÿœŒæÆ]/.test(segment);
+    const status = hasLetters ? (wordStatuses[wordIndex++] ?? 'pending') : 'pending';
+
+    return (
+      <span
+        key={segIdx}
+        className={cn(
+          'transition-colors',
+          status === 'matched' && 'text-green-600 font-medium',
+          status === 'pending' && 'text-gray-400',
+          status === 'missed' && 'text-amber-600 underline decoration-dotted'
+        )}
+      >
+        {segment}
+      </span>
+    );
   });
 }
 
@@ -17,7 +73,8 @@ function renderHintedLine(
   validatedLines: boolean[],
   currentLineIndex: number,
   currentTypedText: string,
-  difficulty: Difficulty
+  difficulty: Difficulty,
+  spokenWordStatuses?: WordMatchStatus[] | null
 ) {
   if (validatedLines[absoluteIndex]) {
     return line;
@@ -44,6 +101,10 @@ function renderHintedLine(
 
   if (absoluteIndex !== currentLineIndex) {
     return <span className="text-gray-700">{line}</span>;
+  }
+
+  if (spokenWordStatuses && spokenWordStatuses.length > 0) {
+    return renderSpokenWordHighlight(line, spokenWordStatuses);
   }
 
   const charResults = compareCharacters(currentTypedText, line);
@@ -73,6 +134,7 @@ export function PoemDisplay({
   currentTypedText = '',
   currentLineIndex = 0,
   difficulty = 'easy',
+  spokenWordStatuses = null,
 }: PoemDisplayProps) {
   const totalSections = Math.max(1, Math.ceil(poem.content.length / VERSES_PER_SECTION));
   const correctLines = validatedLines.filter(Boolean).length;
@@ -117,7 +179,8 @@ export function PoemDisplay({
                 validatedLines,
                 currentLineIndex,
                 currentTypedText,
-                difficulty
+                difficulty,
+                spokenWordStatuses
               )}
             </p>
           );

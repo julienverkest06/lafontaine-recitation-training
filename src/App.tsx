@@ -15,6 +15,7 @@ import type {
   Poem,
   ReaderPreferences,
   RecitedVersesMap,
+  WordMatchStatus,
 } from './types/poetry';
 import {
   getVersesCount,
@@ -116,6 +117,7 @@ function App() {
   const [recitedVerses, setRecitedVerses] = useState<RecitedVersesMap>(() => getRecitedVerses());
   const [currentTypedText, setCurrentTypedText] = useState('');
   const [currentLineIndex, setCurrentLineIndex] = useState(0);
+  const [spokenWordStatuses, setSpokenWordStatuses] = useState<WordMatchStatus[] | null>(null);
   const [showCountdown, setShowCountdown] = useState(initial.showCountdown);
   const [difficulty, setDifficulty] = useState<Difficulty>('easy');
   const [isRecitationFocused, setIsRecitationFocused] = useState(false);
@@ -197,6 +199,7 @@ function App() {
     setValidatedLines([]);
     setCurrentTypedText('');
     setCurrentLineIndex(0);
+    setSpokenWordStatuses(null);
     setShowCountdown(false);
     saveLastSelectedPoem(poem.id);
     writeHash(`#/reciter/${poem.Slug}`);
@@ -277,10 +280,19 @@ function App() {
     setCurrentLineIndex(lineIndex);
   }, []);
 
+  const handleWordStatusesChange = useCallback(
+    (statuses: WordMatchStatus[] | null, lineIndex: number) => {
+      setSpokenWordStatuses(statuses);
+      setCurrentLineIndex(lineIndex);
+    },
+    []
+  );
+
   const handleResetProgress = useCallback(() => {
     setValidatedLines([]);
     setCurrentTypedText('');
     setCurrentLineIndex(0);
+    setSpokenWordStatuses(null);
   }, []);
 
   const activeReaderPoem = selectedPoem ?? orderedFables[0];
@@ -395,6 +407,7 @@ function App() {
                   onDifficultyChange={setDifficulty}
                   onValidation={handleValidation}
                   onTextChange={handleTextChange}
+                  onWordStatusesChange={handleWordStatusesChange}
                   onFocusChange={setIsRecitationFocused}
                   onResetProgress={handleResetProgress}
                 />
@@ -408,6 +421,7 @@ function App() {
                     currentTypedText={currentTypedText}
                     currentLineIndex={currentLineIndex}
                     difficulty={difficulty}
+                    spokenWordStatuses={spokenWordStatuses}
                   />
                 ) : showCountdown ? (
                   <CountdownTimer seconds={7} onComplete={handleRandomSelection} />

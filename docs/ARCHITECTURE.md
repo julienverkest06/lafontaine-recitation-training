@@ -89,9 +89,12 @@ Affiche les vers par tranches de 4 selon le niveau choisi :
 - **Moyen** (`medium`) : masque les mots en conservant leur initiale comme repère mnémotechnique.
 - **Difficile** (`hard`) : récitation pure de mémoire (les vers se révèlent au fur et à mesure de leur validation).
 
-### 6. Validation & requêtes métier
+### 6. Validation, traitement vocal & requêtes métier
 
 - **`src/utils/validation.ts`** : `normalizeText`, `validateLine`, `validateRecitation` et `compareCharacters` (retourne `CharMatchStatus[]` avec normalisation unifiée des accents, ponctuations et ligatures `œ`/`oe`, `æ`/`ae`).
+- **`src/utils/speechCleaner.ts`** : filtrage déterministe des disfluences orales (`euh`, `hum`, `ben`, etc. protégées contre les mots du vers cible), détection des auto-corrections / reprises (*« oh non je recommence, je me suis trompé »*), déduplication des faux départs et détection de la commande *« recommencer la fable »*.
+- **`src/utils/phoneticAligner.ts` & `src/data/lafontaineLexicon.ts`** : clé phonétique française (`toFrenchPhonetic`), table d'équivalences archaïques La Fontaine (*l'Oût*, *nenni*, *vermisseau*, *Ésope*, *gabelle*…), alignement glissant multi-vers, évaluation multi-hypothèses (`maxAlternatives = 3`) et générateur de glossaire (`extractFableGlossary` / `buildWhisperInitialPrompt`).
+- **`src/services/speech/`** : contrat `SpeechEngine` découplé de l'UI (implémentation `WebSpeechEngine` avec auto-reprise sur silence ; prêt pour `WhisperWebGPUEngine` sur la branche dédiée).
 - **`src/data/fablesQueries.ts`** : fonctions pures de tri (`sortFablesByBookOrder`), groupement par Livre (`groupFablesByBook`), navigation (`getAdjacentFables`), recherche plein texte (`searchFables`) et résolution de slug (`findFableBySlug`).
 
 ### 7. Persistance locale (`src/utils/localStorage.ts`)

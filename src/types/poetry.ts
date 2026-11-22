@@ -3,6 +3,7 @@ export type ReaderViewMode = 'single' | 'anthology';
 export type ReaderFontSize = 'sm' | 'md' | 'lg';
 export type Difficulty = 'easy' | 'medium' | 'hard';
 export type CharMatchStatus = 'correct' | 'incorrect' | 'pending';
+export type WordMatchStatus = 'matched' | 'pending' | 'missed';
 
 export interface Poem {
   id: number;
@@ -27,6 +28,7 @@ export interface PoemDisplayProps {
   currentTypedText?: string;
   currentLineIndex?: number;
   difficulty?: Difficulty;
+  spokenWordStatuses?: WordMatchStatus[] | null;
 }
 
 export interface PoemListProps {
@@ -42,6 +44,7 @@ export interface RecitationProps {
   onDifficultyChange: (difficulty: Difficulty) => void;
   onValidation: (validatedLines: boolean[]) => void;
   onTextChange?: (text: string, lineIndex: number) => void;
+  onWordStatusesChange?: (statuses: WordMatchStatus[] | null, lineIndex: number) => void;
   onFocusChange?: (isFocused: boolean) => void;
   onResetProgress?: () => void;
 }

@@ -12,6 +12,7 @@ export function RecitationArea({
   onDifficultyChange,
   onValidation,
   onTextChange,
+  onWordStatusesChange,
   onFocusChange,
   onResetProgress,
 }: RecitationProps) {
@@ -30,6 +31,7 @@ export function RecitationArea({
     onDifficultyChange,
     onValidation,
     onTextChange: onTextChange ?? noop,
+    onWordStatusesChange,
     onFocusChange: onFocusChange ?? noop,
     onModeSwitch: toggleMode,
   };

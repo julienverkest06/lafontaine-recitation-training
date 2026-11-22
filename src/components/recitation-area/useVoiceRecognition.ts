@@ -1,94 +1,91 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import type {
+  SpeechEngine,
+  SpeechEngineStatus,
+  SpeechStartOptions,
+  TranscriptEvent,
+} from '../../services/speech/types';
+import { WebSpeechEngine } from '../../services/speech/webSpeechEngine';
 
-function getSpeechRecognitionCtor(): typeof SpeechRecognition | undefined {
-  if (typeof window === 'undefined') return undefined;
-  return window.SpeechRecognition || window.webkitSpeechRecognition;
+interface UseVoiceRecognitionOptions {
+  onTranscript: (event: TranscriptEvent) => void;
+  startOptions?: Omit<SpeechStartOptions, 'lang'>;
+  engine?: SpeechEngine;
 }
 
-export function useVoiceRecognition(onTranscriptUpdate: (transcript: string) => void) {
-  const [isListening, setIsListening] = useState(false);
-  const isSupported = Boolean(getSpeechRecognitionCtor());
-  const recognitionRef = useRef<SpeechRecognition | null>(null);
-  const lastTranscriptRef = useRef<string>('');
-  const callbackRef = useRef(onTranscriptUpdate);
+export function useVoiceRecognition({
+  onTranscript,
+  startOptions,
+  engine: customEngine,
+}: UseVoiceRecognitionOptions) {
+  const engine = useMemo(() => customEngine ?? new WebSpeechEngine(), [customEngine]);
+  const [status, setStatus] = useState<SpeechEngineStatus>('idle');
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [modelProgress, setModelProgress] = useState<number | null>(null);
+
+  const onTranscriptRef = useRef(onTranscript);
+  const startOptionsRef = useRef(startOptions);
 
   useEffect(() => {
-    callbackRef.current = onTranscriptUpdate;
-  }, [onTranscriptUpdate]);
+    onTranscriptRef.current = onTranscript;
+  }, [onTranscript]);
 
   useEffect(() => {
-    const SpeechRecognitionCtor = getSpeechRecognitionCtor();
-    if (!SpeechRecognitionCtor) return;
+    startOptionsRef.current = startOptions;
+  }, [startOptions]);
 
-    const recognition = new SpeechRecognitionCtor();
-    recognition.continuous = true;
-    recognition.interimResults = true;
-    recognition.lang = 'fr-FR';
-
-    const handleResult = (event: SpeechRecognitionEvent) => {
-      const results = Array.from(event.results);
-      const lastResult = results[results.length - 1];
-      const transcript = lastResult?.[0]?.transcript ?? '';
-
-      if (transcript && transcript !== lastTranscriptRef.current) {
-        lastTranscriptRef.current = transcript;
-        callbackRef.current(transcript);
-      }
-    };
-
-    const handleError = (event: SpeechRecognitionErrorEvent) => {
-      console.error('Speech recognition error:', event.error);
-      setIsListening(false);
-    };
-
-    const handleEnd = () => {
-      setIsListening(false);
-      lastTranscriptRef.current = '';
-    };
-
-    recognition.addEventListener('result', handleResult);
-    recognition.addEventListener('error', handleError);
-    recognition.addEventListener('end', handleEnd);
-
-    recognitionRef.current = recognition;
-
+  useEffect(() => {
     return () => {
-      recognition.removeEventListener('result', handleResult);
-      recognition.removeEventListener('error', handleError);
-      recognition.removeEventListener('end', handleEnd);
-      recognition.stop();
-      recognitionRef.current = null;
-      lastTranscriptRef.current = '';
+      engine.dispose();
     };
-  }, []);
+  }, [engine]);
+
+  const isListening = status === 'listening';
+  const isSupported = engine.isSupported();
 
   const stopListening = useCallback(() => {
-    if (recognitionRef.current && isListening) {
-      recognitionRef.current.stop();
-      lastTranscriptRef.current = '';
-      setIsListening(false);
-    }
-  }, [isListening]);
+    engine.stop();
+    setStatus('idle');
+  }, [engine]);
 
   const toggleMicrophone = useCallback(() => {
-    if (!recognitionRef.current) {
-      alert("La reconnaissance vocale n'est pas supportée par votre navigateur.");
+    if (!engine.isSupported()) {
+      setErrorMessage("La reconnaissance vocale n'est pas supportée par votre navigateur.");
+      setStatus('error');
       return;
     }
 
-    if (isListening) {
-      recognitionRef.current.stop();
-      lastTranscriptRef.current = '';
-      setIsListening(false);
-    } else {
-      recognitionRef.current.start();
-      setIsListening(true);
+    if (status === 'listening' || status === 'loading-model') {
+      engine.stop();
+      setStatus('idle');
+      return;
     }
-  }, [isListening]);
+
+    setErrorMessage(null);
+    void engine.start(
+      {
+        lang: 'fr-FR',
+        ...startOptionsRef.current,
+      },
+      {
+        onTranscript: (event) => onTranscriptRef.current(event),
+        onStatusChange: (nextStatus, err) => {
+          setStatus(nextStatus);
+          if (err) setErrorMessage(err);
+          if (nextStatus === 'listening') setModelProgress(null);
+        },
+        onProgress: (progress) => setModelProgress(progress),
+      }
+    );
+  }, [engine, status]);
 
   return {
     isListening,
     isSupported,
+    status,
+    errorMessage,
+    modelProgress,
+    engineLabel: engine.label,
     toggleMicrophone,
     stopListening,
   };

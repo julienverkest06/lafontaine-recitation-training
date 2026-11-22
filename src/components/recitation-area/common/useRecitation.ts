@@ -21,6 +21,44 @@ function getOpacity(index: number): number {
 export function useRecitation({ poem, onValidation, onTextChange }: UseRecitationProps) {
   const [state, setState] = useState<RecitationState>(INITIAL_STATE);
 
+  const validateMultipleVerses = useCallback(
+    (count: number): string[] => {
+      if (!poem || count <= 0 || state.currentLineIndex >= poem.content.length) {
+        return [];
+      }
+
+      const maxToValidate = Math.min(count, poem.content.length - state.currentLineIndex);
+      const newValidatedLines = [...state.validatedLines];
+      const validatedTexts: string[] = [];
+
+      for (let offset = 0; offset < maxToValidate; offset++) {
+        const lineIndex = state.currentLineIndex + offset;
+        const targetLine = poem.content[lineIndex];
+        addRecitedVerse(poem.id.toString(), poem.title, targetLine);
+        newValidatedLines[lineIndex] = true;
+        validatedTexts.push(targetLine);
+      }
+
+      const newCorrectCount = newValidatedLines.filter(Boolean).length;
+      const nextLineIndex = state.currentLineIndex + maxToValidate;
+      const newSection = Math.floor(nextLineIndex / VERSES_PER_SECTION);
+
+      setState({
+        validatedLines: newValidatedLines,
+        correctCount: newCorrectCount,
+        currentLineIndex: nextLineIndex,
+        currentSection: newSection,
+        recitation: '',
+      });
+
+      onValidation(newValidatedLines);
+      onTextChange('', nextLineIndex);
+
+      return validatedTexts;
+    },
+    [poem, state.currentLineIndex, state.validatedLines, onValidation, onTextChange]
+  );
+
   const validateVerse = useCallback(
     (text: string): boolean => {
       if (!poem || state.currentLineIndex >= poem.content.length) return false;
@@ -29,31 +67,13 @@ export function useRecitation({ poem, onValidation, onTextChange }: UseRecitatio
       const isCorrect = validateLine(text, targetLine);
 
       if (isCorrect) {
-        addRecitedVerse(poem.id.toString(), poem.title, targetLine);
-
-        const newValidatedLines = [...state.validatedLines];
-        newValidatedLines[state.currentLineIndex] = true;
-
-        const newCorrectCount = newValidatedLines.filter(Boolean).length;
-        const nextLineIndex = state.currentLineIndex + 1;
-        const newSection = Math.floor(nextLineIndex / VERSES_PER_SECTION);
-
-        setState({
-          validatedLines: newValidatedLines,
-          correctCount: newCorrectCount,
-          currentLineIndex: nextLineIndex,
-          currentSection: newSection,
-          recitation: '',
-        });
-
-        onValidation(newValidatedLines);
-        onTextChange('', nextLineIndex);
+        validateMultipleVerses(1);
         return true;
       }
 
       return false;
     },
-    [poem, state.currentLineIndex, state.validatedLines, onValidation, onTextChange]
+    [poem, state.currentLineIndex, validateMultipleVerses]
   );
 
   const updateRecitation = useCallback(
@@ -82,6 +102,7 @@ export function useRecitation({ poem, onValidation, onTextChange }: UseRecitatio
   return {
     state,
     validateVerse,
+    validateMultipleVerses,
     updateRecitation,
     getCurrentSectionLines,
     getOpacity,
