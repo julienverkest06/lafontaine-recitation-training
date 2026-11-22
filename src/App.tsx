@@ -36,7 +36,8 @@ interface HashRoute {
 }
 
 function parseHashRoute(hash: string): HashRoute | null {
-  const cleaned = hash.replace(/^#\/?/, '');
+  const withoutQuery = hash.split('?')[0] ?? '';
+  const cleaned = withoutQuery.replace(/^#\/?/, '');
   if (!cleaned) return null;
 
   const [section, slug] = cleaned.split('/');

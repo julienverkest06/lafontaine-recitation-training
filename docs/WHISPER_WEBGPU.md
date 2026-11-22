@@ -101,7 +101,20 @@ Whisper est un modèle encodeur-décodeur génératif : son décodeur accepte un
 
 ---
 
-## 6. Pistes d'évolution ultérieures
+## 6. Mode Debug Vocal & Diagnostic intégré
+
+Un panneau **Mode Debug Vocal** (`src/components/recitation-area/modes/voice/VoiceDebugPanel.tsx`) est intégré directement dans l'interface de récitation vocale :
+
+- **Activation** : bouton **Debug** dans la zone vocale, ou directement via l'URL (`?debug=voice` ou `#/reciter/<slug>?debug=voice`).
+- **Diagnostic d'environnement** : vérifie en temps réel `isSecureContext` (HTTPS/localhost), `Web Speech API`, `getUserMedia`, `AudioWorklet`, `Web Worker`, `WebGPU`, le statut moteur et le backend actif (`WEBGPU` / `WASM`).
+- **Test matériel micro (`Tester le micro`)** : sonde `getUserMedia` + `AnalyserNode` pendant 1,5 s sans charger Whisper pour confirmer que le microphone système délivre bien un signal (RMS max & peak).
+- **VU-mètre temps réel & réglage VAD** : affiche le niveau RMS en direct face au seuil VAD (défaut abaissé à `0.006`), avec slider dynamique (`0.001` à `0.050`) et bouton **« Transcrire maintenant »** pour forcer l'envoi du buffer audio courant au worker.
+- **Simulateur de dictée** : injecte des transcriptions synthétiques (vers exact, hésitation + auto-correction, 2 vers en continu) pour valider tout le pipeline (`speechCleaner` + `phoneticAligner` + UI) sans micro.
+- **Journal horodaté & export JSON** : conserve les 100 derniers événements (`engine`, `audio`, `vad`, `whisper`, `aligner`, `ui`) avec copie en un clic d'un rapport JSON complet.
+
+---
+
+## 7. Pistes d'évolution ultérieures
 
 1. **VAD neuronal (Silero VAD)** : remplacer `SpeechSegmenter` par `@ricky0123/vad-web` pour une meilleure robustesse dans les environnements bruyants (bruit de rue, musique de fond).
 2. **Inférence streaming intermédiaire** : envoyer des fenêtres glissantes toutes les 1,5 s pendant une longue tirade pour afficher les mots verts en temps réel avant même la pause de 750 ms.

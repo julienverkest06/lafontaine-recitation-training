@@ -12,6 +12,23 @@ export interface SpeechAudioState {
   speechDetected: boolean;
 }
 
+export interface VoiceTelemetry {
+  rms: number;
+  peak: number;
+  threshold: number;
+  isVoice: boolean;
+  sampleRate: number;
+  contextState: string;
+  segmentsEmitted: number;
+}
+
+export interface EngineDebugLogEvent {
+  level: 'info' | 'warn' | 'error';
+  source: 'engine' | 'audio' | 'vad' | 'whisper';
+  message: string;
+  details?: Record<string, unknown>;
+}
+
 export interface TranscriptEvent {
   text: string;
   alternatives: string[];
@@ -24,12 +41,15 @@ export interface SpeechStartOptions {
   vocabularyHints?: string[];
   contextVerses?: string[];
   initialPrompt?: string;
+  vadThreshold?: number;
 }
 
 export interface SpeechEngineCallbacks {
   onTranscript: (event: TranscriptEvent) => void;
   onStatusChange: (status: SpeechEngineStatus, error?: string) => void;
   onAudioStateChange?: (state: SpeechAudioState) => void;
+  onTelemetry?: (telemetry: VoiceTelemetry) => void;
+  onDebugLog?: (event: EngineDebugLogEvent) => void;
   onProgress?: (progress: number) => void;
   onDeviceDetected?: (device: InferenceDevice) => void;
 }
@@ -40,6 +60,8 @@ export interface SpeechEngine {
   isSupported(): boolean;
   start(options: SpeechStartOptions, callbacks: SpeechEngineCallbacks): Promise<void> | void;
   updateContext?(options: Partial<SpeechStartOptions>): void;
+  setVadThreshold?(threshold: number): void;
+  flushAudioNow?(): void;
   resetTranscriptBuffer?(): void;
   stop(): void;
   dispose(): void;

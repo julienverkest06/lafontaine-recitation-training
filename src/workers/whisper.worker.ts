@@ -26,7 +26,13 @@ type WorkerRequest =
 type WorkerResponse =
   | { type: 'progress'; progress: number }
   | { type: 'ready'; device: InferenceDevice; model: WhisperModelVariant }
-  | { type: 'result'; text: string }
+  | { type: 'result'; text: string; durationMs: number; audioSeconds: number }
+  | {
+      type: 'debug';
+      level: 'info' | 'warn' | 'error';
+      message: string;
+      details?: Record<string, unknown>;
+    }
   | { type: 'error'; message: string };
 
 interface ProgressInfo {
@@ -37,6 +43,9 @@ interface ProgressInfo {
 let transcriber: AutomaticSpeechRecognitionPipeline | null = null;
 let loadedModel: WhisperModelVariant | null = null;
 let activeDevice: InferenceDevice = 'wasm';
+
+// Strict FIFO promise chain so ONNX sessions never overlap concurrently
+let jobQueue: Promise<void> = Promise.resolve();
 
 async function detectPreferredDevice(): Promise<InferenceDevice> {
   if (typeof navigator === 'undefined' || !('gpu' in navigator)) {
@@ -64,27 +73,52 @@ function handleModelProgress(info: ProgressInfo): void {
 
 async function ensureLoaded(model: WhisperModelVariant): Promise<void> {
   if (transcriber && loadedModel === model) {
+    post({
+      type: 'debug',
+      level: 'info',
+      message: `Modèle Whisper (${model}) déjà en mémoire (${activeDevice})`,
+    });
     post({ type: 'ready', device: activeDevice, model });
     return;
   }
 
   const preferredDevice = await detectPreferredDevice();
   const modelId = MODEL_IDS[model];
+  const loadStart = performance.now();
+
+  post({
+    type: 'debug',
+    level: 'info',
+    message: `Chargement ${modelId} (backend préféré : ${preferredDevice})…`,
+  });
 
   try {
     transcriber = await pipeline('automatic-speech-recognition', modelId, {
       device: preferredDevice,
-      dtype: preferredDevice === 'webgpu'
-        ? { encoder_model: 'fp32', decoder_model_merged: 'q4' }
-        : 'q8',
+      dtype:
+        preferredDevice === 'webgpu'
+          ? { encoder_model: 'fp32', decoder_model_merged: 'q4' }
+          : 'q8',
       progress_callback: handleModelProgress,
     });
     activeDevice = preferredDevice;
     loadedModel = model;
+    post({
+      type: 'debug',
+      level: 'info',
+      message: `Modèle prêt en ${Math.round(performance.now() - loadStart)} ms (${activeDevice})`,
+    });
     post({ type: 'ready', device: activeDevice, model });
   } catch (webgpuError) {
     if (preferredDevice === 'webgpu') {
-      // Graceful fallback to CPU/WASM when WebGPU adapter fails
+      post({
+        type: 'debug',
+        level: 'warn',
+        message: 'Échec WebGPU — bascule automatique sur WASM (q8)',
+        details: {
+          reason: webgpuError instanceof Error ? webgpuError.message : String(webgpuError),
+        },
+      });
       transcriber = await pipeline('automatic-speech-recognition', modelId, {
         device: 'wasm',
         dtype: 'q8',
@@ -92,6 +126,11 @@ async function ensureLoaded(model: WhisperModelVariant): Promise<void> {
       });
       activeDevice = 'wasm';
       loadedModel = model;
+      post({
+        type: 'debug',
+        level: 'info',
+        message: `Modèle prêt en fallback WASM (${Math.round(performance.now() - loadStart)} ms)`,
+      });
       post({ type: 'ready', device: 'wasm', model });
       return;
     }
@@ -99,51 +138,67 @@ async function ensureLoaded(model: WhisperModelVariant): Promise<void> {
   }
 }
 
-self.addEventListener('message', async (event: MessageEvent<WorkerRequest>) => {
-  const payload = event.data;
+async function processRequest(payload: WorkerRequest): Promise<void> {
+  if (payload.type === 'load') {
+    await ensureLoaded(payload.model);
+    return;
+  }
 
-  try {
-    if (payload.type === 'load') {
-      await ensureLoaded(payload.model);
+  if (payload.type === 'transcribe') {
+    if (!transcriber) {
+      await ensureLoaded(loadedModel ?? 'base');
+    }
+    if (!transcriber) {
+      throw new Error('Whisper pipeline non initialisé.');
+    }
+
+    const audioSeconds = Number((payload.audio.length / 16000).toFixed(2));
+    const startedAt = performance.now();
+
+    post({
+      type: 'debug',
+      level: 'info',
+      message: `Inférence Whisper démarrée (${audioSeconds}s audio, langue=${payload.language})`,
+    });
+
+    const output = await transcriber(payload.audio, {
+      language: payload.language,
+      task: 'transcribe',
+      chunk_length_s: 30,
+      stride_length_s: 5,
+      return_timestamps: false,
+    });
+
+    const durationMs = Math.round(performance.now() - startedAt);
+    const text = Array.isArray(output)
+      ? output.map((chunk) => chunk.text).join(' ').trim()
+      : output.text.trim();
+
+    if (!text) {
+      post({
+        type: 'debug',
+        level: 'warn',
+        message: `Inférence terminée en ${durationMs} ms mais transcription vide (bruit ou voix trop faible)`,
+      });
       return;
     }
 
-    if (payload.type === 'transcribe') {
-      if (!transcriber) {
-        await ensureLoaded(loadedModel ?? 'base');
-      }
-      if (!transcriber) {
-        throw new Error('Whisper pipeline non initialisé.');
-      }
-
-      const options: Record<string, unknown> = {
-        language: payload.language,
-        task: 'transcribe',
-        chunk_length_s: 30,
-        stride_length_s: 5,
-      };
-
-      // Inject La Fontaine glossary prompt when supported by the tokenizer
-      if (payload.initialPrompt && transcriber.tokenizer) {
-        const promptIds = transcriber.tokenizer.encode(payload.initialPrompt, {
-          add_special_tokens: false,
-        });
-        if (promptIds.length > 0) {
-          options.prompt_ids = promptIds.slice(0, 200);
-        }
-      }
-
-      const output = await transcriber(payload.audio, options);
-      const text = Array.isArray(output)
-        ? output.map((chunk) => chunk.text).join(' ').trim()
-        : output.text.trim();
-
-      if (text) {
-        post({ type: 'result', text });
-      }
-    }
-  } catch (error) {
-    const message = error instanceof Error ? error.message : String(error);
-    post({ type: 'error', message });
+    post({
+      type: 'debug',
+      level: 'info',
+      message: `Inférence terminée en ${durationMs} ms → "${text}"`,
+    });
+    post({ type: 'result', text, durationMs, audioSeconds });
   }
+}
+
+self.addEventListener('message', (event: MessageEvent<WorkerRequest>) => {
+  const payload = event.data;
+
+  jobQueue = jobQueue
+    .then(() => processRequest(payload))
+    .catch((error: unknown) => {
+      const message = error instanceof Error ? error.message : String(error);
+      post({ type: 'error', message });
+    });
 });

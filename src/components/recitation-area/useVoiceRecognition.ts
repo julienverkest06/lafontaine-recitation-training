@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type {
+  EngineDebugLogEvent,
   InferenceDevice,
   SpeechAudioState,
   SpeechEngine,
@@ -7,6 +8,7 @@ import type {
   SpeechEngineStatus,
   SpeechStartOptions,
   TranscriptEvent,
+  VoiceTelemetry,
   WhisperModelVariant,
 } from '../../services/speech/types';
 import { WebSpeechEngine } from '../../services/speech/webSpeechEngine';
@@ -14,6 +16,7 @@ import { WhisperWebGPUEngine } from '../../services/speech/whisperWebGPUEngine';
 
 interface UseVoiceRecognitionOptions {
   onTranscript: (event: TranscriptEvent) => void;
+  onDebugLog?: (event: EngineDebugLogEvent) => void;
   startOptions?: Omit<SpeechStartOptions, 'lang'>;
   engineId?: SpeechEngineId;
   whisperModel?: WhisperModelVariant;
@@ -28,6 +31,7 @@ const IDLE_AUDIO_STATE: SpeechAudioState = {
 
 export function useVoiceRecognition({
   onTranscript,
+  onDebugLog,
   startOptions,
   engineId = 'web-speech',
   whisperModel = 'base',
@@ -46,13 +50,19 @@ export function useVoiceRecognition({
   const [modelProgress, setModelProgress] = useState<number | null>(null);
   const [inferenceDevice, setInferenceDevice] = useState<InferenceDevice | null>(null);
   const [audioState, setAudioState] = useState<SpeechAudioState>(IDLE_AUDIO_STATE);
+  const [telemetry, setTelemetry] = useState<VoiceTelemetry | null>(null);
 
   const onTranscriptRef = useRef(onTranscript);
+  const onDebugLogRef = useRef(onDebugLog);
   const startOptionsRef = useRef(startOptions);
 
   useEffect(() => {
     onTranscriptRef.current = onTranscript;
   }, [onTranscript]);
+
+  useEffect(() => {
+    onDebugLogRef.current = onDebugLog;
+  }, [onDebugLog]);
 
   useEffect(() => {
     startOptionsRef.current = startOptions;
@@ -76,18 +86,30 @@ export function useVoiceRecognition({
     setStatus('idle');
     setModelProgress(null);
     setAudioState(IDLE_AUDIO_STATE);
+    setTelemetry(null);
   }, [engine]);
 
   const resetTranscriptBuffer = useCallback(() => {
     engine.resetTranscriptBuffer?.();
   }, [engine]);
 
+  const setVadThreshold = useCallback(
+    (threshold: number) => {
+      engine.setVadThreshold?.(threshold);
+    },
+    [engine]
+  );
+
+  const flushAudioNow = useCallback(() => {
+    engine.flushAudioNow?.();
+  }, [engine]);
+
   const toggleMicrophone = useCallback(() => {
     if (!engine.isSupported()) {
-      setErrorMessage(
-        "La reconnaissance vocale n'est pas supportée par ce navigateur."
-      );
+      const msg = "La reconnaissance vocale n'est pas supportée par votre navigateur.";
+      setErrorMessage(msg);
       setStatus('error');
+      onDebugLogRef.current?.({ level: 'error', source: 'engine', message: msg });
       return;
     }
 
@@ -96,6 +118,7 @@ export function useVoiceRecognition({
       setStatus('idle');
       setModelProgress(null);
       setAudioState(IDLE_AUDIO_STATE);
+      setTelemetry(null);
       return;
     }
 
@@ -111,9 +134,14 @@ export function useVoiceRecognition({
           setStatus(nextStatus);
           if (err) setErrorMessage(err);
           if (nextStatus === 'listening') setModelProgress(null);
-          if (nextStatus !== 'listening') setAudioState(IDLE_AUDIO_STATE);
+          if (nextStatus !== 'listening') {
+            setAudioState(IDLE_AUDIO_STATE);
+            setTelemetry(null);
+          }
         },
         onAudioStateChange: (nextAudioState) => setAudioState(nextAudioState),
+        onTelemetry: (nextTelemetry) => setTelemetry(nextTelemetry),
+        onDebugLog: (event) => onDebugLogRef.current?.(event),
         onProgress: (progress) => setModelProgress(progress),
         onDeviceDetected: (device) => setInferenceDevice(device),
       }
@@ -129,9 +157,12 @@ export function useVoiceRecognition({
     modelProgress,
     inferenceDevice,
     audioState,
+    telemetry,
     engineLabel: engine.label,
     toggleMicrophone,
     stopListening,
     resetTranscriptBuffer,
+    setVadThreshold,
+    flushAudioNow,
   };
 }

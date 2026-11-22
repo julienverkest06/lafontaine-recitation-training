@@ -11,6 +11,7 @@
     "typecheck": "tsc -b --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
+    "test:e2e": "playwright test",
     "check": "npm run lint && npm run typecheck && npm run test"
   },
   "dependencies": {
@@ -22,6 +23,7 @@
     "tailwind-merge": "^3.0.0"
   },
   "devDependencies": {
+    "@playwright/test": "^1.65.1",
     "@tailwindcss/vite": "^4.3.5",
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.3.0",

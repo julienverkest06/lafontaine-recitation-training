@@ -47,7 +47,9 @@ class MockSpeechRecognition {
 
 function makeResults(entries: Array<{ transcript: string; isFinal: boolean }>) {
   const list = entries.map((entry) => {
-    const item = [{ transcript: entry.transcript, confidence: 0.95 }] as unknown as SpeechRecognitionResult;
+    const item = [
+      { transcript: entry.transcript, confidence: 0.95 },
+    ] as unknown as SpeechRecognitionResult;
     Object.defineProperty(item, 'isFinal', { value: entry.isFinal });
     return item;
   });
@@ -91,7 +93,6 @@ describe('VoiceRecitation', () => {
     const instance = MockSpeechRecognition.latestInstance!;
     expect(instance).not.toBeNull();
 
-    // Première moitié du vers (finalisée après une petite pause)
     act(() => {
       instance.emit('speechstart', {});
       instance.emit('result', {
@@ -103,7 +104,6 @@ describe('VoiceRecitation', () => {
     expect(screen.getByText('Parole détectée')).toBeInTheDocument();
     expect(onValidation).not.toHaveBeenCalled();
 
-    // Seconde moitié du vers après pause : cumulée avec la première -> valide le vers !
     act(() => {
       instance.emit('result', {
         results: makeResults([
@@ -140,6 +140,35 @@ describe('VoiceRecitation', () => {
       instance.emit('end', {});
     });
 
-    expect(screen.getByRole('alert')).toHaveTextContent(/service Web Speech du navigateur est inaccessible/i);
+    expect(screen.getByRole('alert')).toHaveTextContent(
+      /service Web Speech du navigateur est inaccessible/i
+    );
+  });
+
+  it('ouvre le mode Debug Vocal et valide un vers via le simulateur de dictée avec hésitation', () => {
+    const poem = fables.find((f) => f.Slug === 'le-corbeau-et-le-renard')!;
+    const onValidation = vi.fn();
+
+    render(
+      <VoiceRecitation
+        poem={poem}
+        difficulty="easy"
+        onDifficultyChange={vi.fn()}
+        onValidation={onValidation}
+        onTextChange={vi.fn()}
+        onFocusChange={vi.fn()}
+        onModeSwitch={vi.fn()}
+      />
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: /Debug/i }));
+    expect(screen.getByText('Mode Debug Vocal')).toBeInTheDocument();
+
+    // Injecte un scénario hésitation + reprise via le simulateur
+    fireEvent.click(screen.getByRole('button', { name: /Simuler hésitation \+ reprise/i }));
+
+    expect(onValidation).toHaveBeenCalledWith([true]);
+    expect(screen.getByText(`✓ ${poem.content[0]}`)).toBeInTheDocument();
+    expect(screen.getByText(/Reprise détectée/i)).toBeInTheDocument();
   });
 });

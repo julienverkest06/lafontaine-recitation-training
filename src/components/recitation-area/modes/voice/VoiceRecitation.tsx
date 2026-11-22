@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   AlertCircle,
+  Bug,
   Cpu,
   Globe,
   Keyboard,
@@ -16,16 +17,30 @@ import { useRecitation } from '../../common/useRecitation';
 import { RecitationShell } from '../../common/RecitationShell';
 import { useVoiceRecognition } from '../../useVoiceRecognition';
 import { CompletionMessage } from '../../CompletionMessage';
+import { VoiceDebugPanel } from './VoiceDebugPanel';
+import { DEFAULT_VAD_THRESHOLD } from '../../../../services/speech/audioCapture';
 import type {
+  EngineDebugLogEvent,
   SpeechEngineId,
   TranscriptEvent,
   WhisperModelVariant,
 } from '../../../../services/speech/types';
-import { alignTranscriptToPoem } from '../../../../utils/phoneticAligner';
+import {
+  alignTranscriptToPoem,
+  type VoiceAlignmentResult,
+} from '../../../../utils/phoneticAligner';
 import {
   buildWhisperInitialPrompt,
   extractFableGlossary,
 } from '../../../../data/lafontaineLexicon';
+import {
+  appendDebugEntry,
+  createDebugEntry,
+  isDebugEnabledInUrl,
+  type DebugLogLevel,
+  type DebugLogSource,
+  type VoiceDebugEntry,
+} from '../../../../utils/voiceDebugLogger';
 import { cn } from '../../../../lib/utils';
 
 export function VoiceRecitation({
@@ -40,6 +55,14 @@ export function VoiceRecitation({
 }: BaseRecitationProps) {
   const [engineId, setEngineId] = useState<SpeechEngineId>('web-speech');
   const [whisperModel, setWhisperModel] = useState<WhisperModelVariant>('base');
+  const [vadThreshold, setVadThresholdState] = useState<number>(DEFAULT_VAD_THRESHOLD);
+  const [debugMode, setDebugMode] = useState<boolean>(() =>
+    typeof window !== 'undefined'
+      ? isDebugEnabledInUrl(window.location.search, window.location.hash)
+      : false
+  );
+  const [debugLogs, setDebugLogs] = useState<VoiceDebugEntry[]>([]);
+  const [lastAlignment, setLastAlignment] = useState<VoiceAlignmentResult | null>(null);
   const [transcriptHistory, setTranscriptHistory] = useState<string[]>([]);
   const [rawTranscript, setRawTranscript] = useState('');
   const [isInterim, setIsInterim] = useState(false);
@@ -72,8 +95,30 @@ export function VoiceRecitation({
       vocabularyHints: glossary,
       contextVerses: validatedTexts.slice(-2),
       initialPrompt: buildWhisperInitialPrompt(poem, validatedTexts),
+      vadThreshold,
     }),
-    [glossary, poem, validatedTexts]
+    [glossary, poem, validatedTexts, vadThreshold]
+  );
+
+  const pushDebugLog = useCallback(
+    (
+      level: DebugLogLevel,
+      source: DebugLogSource,
+      message: string,
+      details?: Record<string, unknown>
+    ) => {
+      setDebugLogs((prev) =>
+        appendDebugEntry(prev, createDebugEntry(level, source, message, details))
+      );
+    },
+    []
+  );
+
+  const handleEngineDebugLog = useCallback(
+    (event: EngineDebugLogEvent) => {
+      pushDebugLog(event.level, event.source, event.message, event.details);
+    },
+    [pushDebugLog]
   );
 
   const showTransientNotice = useCallback((message: string) => {
@@ -96,9 +141,11 @@ export function VoiceRecitation({
     setTranscriptHistory([]);
     setRawTranscript('');
     setIsInterim(false);
+    setLastAlignment(null);
     setStatusNotice(null);
     onWordStatusesChange?.(null, 0);
-  }, [onWordStatusesChange, restart]);
+    pushDebugLog('info', 'ui', 'Récitation vocale réinitialisée.');
+  }, [onWordStatusesChange, pushDebugLog, restart]);
 
   const handleTranscript = useCallback(
     (event: TranscriptEvent) => {
@@ -110,6 +157,18 @@ export function VoiceRecitation({
         poem.content,
         state.currentLineIndex,
         difficulty
+      );
+      setLastAlignment(alignment);
+
+      pushDebugLog(
+        'info',
+        'aligner',
+        `Alignement vers #${state.currentLineIndex + 1} : validés=${alignment.matchedVersesCount}, nettoyé="${alignment.bestCleanedText}"`,
+        {
+          restartDetected: alignment.restartDetected,
+          removedFillers: alignment.removedFillers,
+          wordStatuses: alignment.currentLineWordStatuses,
+        }
       );
 
       if (alignment.resetFableRequested) {
@@ -150,6 +209,7 @@ export function VoiceRecitation({
       handleRestart,
       onWordStatusesChange,
       poem.content,
+      pushDebugLog,
       showTransientNotice,
       state.currentLineIndex,
       updateRecitation,
@@ -161,16 +221,21 @@ export function VoiceRecitation({
     isListening,
     isLoadingModel,
     isSupported,
+    status,
     errorMessage,
     modelProgress,
     inferenceDevice,
     audioState,
+    telemetry,
     engineLabel,
     toggleMicrophone,
     stopListening,
     resetTranscriptBuffer,
+    setVadThreshold,
+    flushAudioNow,
   } = useVoiceRecognition({
     onTranscript: handleTranscript,
+    onDebugLog: handleEngineDebugLog,
     startOptions,
     engineId,
     whisperModel,
@@ -251,6 +316,7 @@ export function VoiceRecitation({
                 onClick={() => {
                   stopListening();
                   setEngineId('web-speech');
+                  pushDebugLog('info', 'ui', 'Moteur sélectionné : Web Speech (Navigateur)');
                 }}
                 className={cn(
                   'inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium rounded-md transition-colors',
@@ -267,6 +333,7 @@ export function VoiceRecitation({
                 onClick={() => {
                   stopListening();
                   setEngineId('whisper-webgpu');
+                  pushDebugLog('info', 'ui', `Moteur sélectionné : Whisper Local (${whisperModel})`);
                 }}
                 className={cn(
                   'inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium rounded-md transition-colors',
@@ -286,7 +353,9 @@ export function VoiceRecitation({
                 value={whisperModel}
                 onChange={(e) => {
                   stopListening();
-                  setWhisperModel(e.target.value as WhisperModelVariant);
+                  const next = e.target.value as WhisperModelVariant;
+                  setWhisperModel(next);
+                  pushDebugLog('info', 'ui', `Modèle Whisper changé : ${next}`);
                 }}
                 className="h-7 px-2 text-xs rounded-lg border border-gray-200 bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
               >
@@ -297,6 +366,22 @@ export function VoiceRecitation({
           </div>
 
           <div className="flex flex-wrap items-center gap-2 text-xs">
+            <button
+              type="button"
+              onClick={() => setDebugMode((prev) => !prev)}
+              aria-pressed={debugMode}
+              className={cn(
+                'inline-flex items-center gap-1 px-2.5 py-1 rounded-lg border font-medium transition-colors',
+                debugMode
+                  ? 'bg-slate-900 text-amber-300 border-slate-700'
+                  : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-100'
+              )}
+              title="Activer le mode diagnostic et simulateur vocal"
+            >
+              <Bug className="w-3.5 h-3.5" aria-hidden="true" />
+              Debug
+            </button>
+
             {isListening && (
               <span
                 className={cn(
@@ -448,6 +533,40 @@ export function VoiceRecitation({
           </button>
         </div>
       </div>
+
+      {debugMode && (
+        <VoiceDebugPanel
+          poemTitle={poem.title}
+          poemLines={poem.content}
+          currentLineIndex={state.currentLineIndex}
+          glossary={glossary}
+          engineId={engineId}
+          status={status}
+          inferenceDevice={inferenceDevice}
+          errorMessage={errorMessage}
+          audioState={audioState}
+          telemetry={telemetry}
+          vadThreshold={vadThreshold}
+          lastAlignment={lastAlignment}
+          logs={debugLogs}
+          onVadThresholdChange={(next) => {
+            setVadThresholdState(next);
+            setVadThreshold(next);
+          }}
+          onFlushAudioNow={flushAudioNow}
+          onSimulateTranscript={(text) => {
+            pushDebugLog('info', 'ui', `Dictée simulée injectée : "${text}"`);
+            handleTranscript({
+              text,
+              alternatives: [text],
+              isFinal: true,
+              confidence: 1,
+            });
+          }}
+          onClearLogs={() => setDebugLogs([])}
+          onAddLog={(level, msg) => pushDebugLog(level, 'ui', msg)}
+        />
+      )}
 
       {transcriptHistory.length > 0 && (
         <div className="mt-4 space-y-1.5">
