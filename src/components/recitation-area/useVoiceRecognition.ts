@@ -1,27 +1,43 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type {
+  InferenceDevice,
   SpeechEngine,
+  SpeechEngineId,
   SpeechEngineStatus,
   SpeechStartOptions,
   TranscriptEvent,
+  WhisperModelVariant,
 } from '../../services/speech/types';
 import { WebSpeechEngine } from '../../services/speech/webSpeechEngine';
+import { WhisperWebGPUEngine } from '../../services/speech/whisperWebGPUEngine';
 
 interface UseVoiceRecognitionOptions {
   onTranscript: (event: TranscriptEvent) => void;
   startOptions?: Omit<SpeechStartOptions, 'lang'>;
+  engineId?: SpeechEngineId;
+  whisperModel?: WhisperModelVariant;
   engine?: SpeechEngine;
 }
 
 export function useVoiceRecognition({
   onTranscript,
   startOptions,
+  engineId = 'web-speech',
+  whisperModel = 'base',
   engine: customEngine,
 }: UseVoiceRecognitionOptions) {
-  const engine = useMemo(() => customEngine ?? new WebSpeechEngine(), [customEngine]);
+  const engine = useMemo<SpeechEngine>(() => {
+    if (customEngine) return customEngine;
+    if (engineId === 'whisper-webgpu') {
+      return new WhisperWebGPUEngine(whisperModel);
+    }
+    return new WebSpeechEngine();
+  }, [customEngine, engineId, whisperModel]);
+
   const [status, setStatus] = useState<SpeechEngineStatus>('idle');
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [modelProgress, setModelProgress] = useState<number | null>(null);
+  const [inferenceDevice, setInferenceDevice] = useState<InferenceDevice | null>(null);
 
   const onTranscriptRef = useRef(onTranscript);
   const startOptionsRef = useRef(startOptions);
@@ -32,7 +48,10 @@ export function useVoiceRecognition({
 
   useEffect(() => {
     startOptionsRef.current = startOptions;
-  }, [startOptions]);
+    if (startOptions) {
+      engine.updateContext?.(startOptions);
+    }
+  }, [engine, startOptions]);
 
   useEffect(() => {
     return () => {
@@ -41,11 +60,13 @@ export function useVoiceRecognition({
   }, [engine]);
 
   const isListening = status === 'listening';
+  const isLoadingModel = status === 'loading-model';
   const isSupported = engine.isSupported();
 
   const stopListening = useCallback(() => {
     engine.stop();
     setStatus('idle');
+    setModelProgress(null);
   }, [engine]);
 
   const toggleMicrophone = useCallback(() => {
@@ -58,6 +79,7 @@ export function useVoiceRecognition({
     if (status === 'listening' || status === 'loading-model') {
       engine.stop();
       setStatus('idle');
+      setModelProgress(null);
       return;
     }
 
@@ -75,16 +97,19 @@ export function useVoiceRecognition({
           if (nextStatus === 'listening') setModelProgress(null);
         },
         onProgress: (progress) => setModelProgress(progress),
+        onDeviceDetected: (device) => setInferenceDevice(device),
       }
     );
   }, [engine, status]);
 
   return {
     isListening,
+    isLoadingModel,
     isSupported,
     status,
     errorMessage,
     modelProgress,
+    inferenceDevice,
     engineLabel: engine.label,
     toggleMicrophone,
     stopListening,

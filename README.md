@@ -109,3 +109,4 @@ Le projet est vérifié (`npm run check`) puis déployé automatiquement sur Git
 - [**Audit technique initial**](./docs/AUDIT.md)
 - [**Modernisation de la stack**](./docs/MODERNIZATION.md)
 - [**Feuille de route & Lecture intégrale**](./docs/ROADMAP.md)
+- [**Whisper WebGPU Local (IA vocale navigateur)**](./docs/WHISPER_WEBGPU.md)

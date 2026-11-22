@@ -1,11 +1,15 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Keyboard, Mic, MicOff, RefreshCw, Sparkles } from 'lucide-react';
+import { Cpu, Globe, Keyboard, Loader2, Mic, MicOff, RefreshCw, Sparkles } from 'lucide-react';
 import type { BaseRecitationProps } from '../../common/types';
 import { useRecitation } from '../../common/useRecitation';
 import { RecitationShell } from '../../common/RecitationShell';
 import { useVoiceRecognition } from '../../useVoiceRecognition';
 import { CompletionMessage } from '../../CompletionMessage';
-import type { TranscriptEvent } from '../../../../services/speech/types';
+import type {
+  SpeechEngineId,
+  TranscriptEvent,
+  WhisperModelVariant,
+} from '../../../../services/speech/types';
 import { alignTranscriptToPoem } from '../../../../utils/phoneticAligner';
 import {
   buildWhisperInitialPrompt,
@@ -23,6 +27,8 @@ export function VoiceRecitation({
   onFocusChange,
   onModeSwitch,
 }: BaseRecitationProps) {
+  const [engineId, setEngineId] = useState<SpeechEngineId>('web-speech');
+  const [whisperModel, setWhisperModel] = useState<WhisperModelVariant>('base');
   const [transcriptHistory, setTranscriptHistory] = useState<string[]>([]);
   const [statusNotice, setStatusNotice] = useState<string | null>(null);
   const noticeTimerRef = useRef<number | undefined>(undefined);
@@ -130,17 +136,22 @@ export function VoiceRecitation({
 
   const {
     isListening,
+    isLoadingModel,
     isSupported,
     errorMessage,
+    modelProgress,
+    inferenceDevice,
     engineLabel,
     toggleMicrophone,
     stopListening,
   } = useVoiceRecognition({
     onTranscript: handleTranscript,
     startOptions,
+    engineId,
+    whisperModel,
   });
 
-  const activeFocus = isListening && !isCompleted;
+  const activeFocus = (isListening || isLoadingModel) && !isCompleted;
 
   useEffect(() => {
     onFocusChange(activeFocus);
@@ -197,11 +208,70 @@ export function VoiceRecitation({
       versesPerSection={VERSES_PER_SECTION}
       getOpacity={getOpacity}
     >
-      <div className="relative min-h-40 bg-gray-50 rounded-lg p-5 flex flex-col items-center justify-center gap-3">
+      <div className="relative min-h-44 bg-gray-50 rounded-lg p-5 flex flex-col items-center justify-center gap-3.5">
+        <div className="flex flex-wrap items-center justify-center gap-2">
+          <fieldset
+            className="inline-flex rounded-lg border border-gray-200 bg-white p-0.5 m-0"
+            aria-label="Moteur de reconnaissance vocale"
+          >
+            <button
+              type="button"
+              onClick={() => {
+                stopListening();
+                setEngineId('web-speech');
+              }}
+              className={cn(
+                'inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium rounded-md transition-colors',
+                engineId === 'web-speech'
+                  ? 'bg-indigo-600 text-white'
+                  : 'text-gray-600 hover:text-gray-900'
+              )}
+            >
+              <Globe className="w-3.5 h-3.5" aria-hidden="true" />
+              Web Speech (0 Mo)
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                stopListening();
+                setEngineId('whisper-webgpu');
+              }}
+              className={cn(
+                'inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium rounded-md transition-colors',
+                engineId === 'whisper-webgpu'
+                  ? 'bg-indigo-600 text-white'
+                  : 'text-gray-600 hover:text-gray-900'
+              )}
+            >
+              <Cpu className="w-3.5 h-3.5" aria-hidden="true" />
+              Whisper Local (IA)
+            </button>
+          </fieldset>
+
+          {engineId === 'whisper-webgpu' && (
+            <select
+              aria-label="Taille du modèle Whisper"
+              value={whisperModel}
+              onChange={(e) => {
+                stopListening();
+                setWhisperModel(e.target.value as WhisperModelVariant);
+              }}
+              className="h-7 px-2 text-xs rounded-lg border border-gray-200 bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            >
+              <option value="base">Whisper Base (~85 Mo, rapide)</option>
+              <option value="small">Whisper Small (~240 Mo, précis)</option>
+            </select>
+          )}
+        </div>
+
         <div className="flex flex-wrap items-center justify-center gap-2 text-xs text-gray-500">
           <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-white border border-gray-200">
             <Sparkles className="w-3 h-3 text-indigo-500" aria-hidden="true" />
-            {engineLabel} · Filtre hésitations & phonétique La Fontaine
+            {engineLabel}
+            {engineId === 'whisper-webgpu' && inferenceDevice
+              ? ` · ${inferenceDevice.toUpperCase()}`
+              : ''}
+            {' · '}Filtre hésitations & phonétique La Fontaine
           </span>
           {statusNotice && (
             <output className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-200 font-medium">
@@ -211,13 +281,33 @@ export function VoiceRecitation({
           )}
         </div>
 
+        {isLoadingModel && (
+          <div className="w-full max-w-sm space-y-1">
+            <div className="flex items-center justify-between text-xs text-indigo-700">
+              <span className="inline-flex items-center gap-1.5">
+                <Loader2 className="w-3.5 h-3.5 animate-spin" aria-hidden="true" />
+                Chargement du modèle Whisper (mis en cache navigateur)…
+              </span>
+              {modelProgress !== null && <span>{modelProgress}%</span>}
+            </div>
+            <div className="h-1.5 w-full bg-indigo-100 rounded-full overflow-hidden">
+              <div
+                className="h-full bg-indigo-600 transition-all duration-300"
+                style={{ width: `${modelProgress ?? 15}%` }}
+              />
+            </div>
+          </div>
+        )}
+
         <div className="text-center">
           <p className="text-gray-600 mb-1.5 text-sm">
             {!isSupported
               ? "La reconnaissance vocale n'est pas disponible sur ce navigateur."
-              : isListening
-                ? 'En écoute… récitez naturellement (vous pouvez hésiter ou dire « je recommence »)'
-                : 'Cliquez sur le micro pour commencer la récitation orale'}
+              : isLoadingModel
+                ? 'Initialisation du modèle IA local en cours…'
+                : isListening
+                  ? 'En écoute… récitez naturellement (vous pouvez hésiter ou dire « je recommence »)'
+                  : 'Cliquez sur le micro pour commencer la récitation orale'}
           </p>
           <p className="text-lg font-serif text-gray-800 min-h-7">
             {state.recitation || 'Votre récitation apparaîtra ici'}
@@ -242,7 +332,13 @@ export function VoiceRecitation({
           title={isListening ? 'Arrêter la dictée' : 'Commencer la dictée'}
           aria-label={isListening ? 'Arrêter la dictée' : 'Commencer la dictée'}
         >
-          {isListening ? <MicOff className="w-6 h-6" /> : <Mic className="w-6 h-6" />}
+          {isLoadingModel ? (
+            <Loader2 className="w-6 h-6 animate-spin" />
+          ) : isListening ? (
+            <MicOff className="w-6 h-6" />
+          ) : (
+            <Mic className="w-6 h-6" />
+          )}
         </button>
       </div>
 
