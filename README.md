@@ -30,7 +30,7 @@ Application web interactive permettant de **lire l'intégralité des fables** de
 
 ### Prérequis
 
-- Node.js `24` (voir [`.nvmrc`](./.nvmrc))
+- Node.js `26` (voir [`.nvmrc`](./.nvmrc))
 - npm
 
 ### Installation et commandes
