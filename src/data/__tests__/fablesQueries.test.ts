@@ -20,6 +20,13 @@ describe('fables dataset integrity', () => {
         expect(line.trim().length).toBeGreaterThan(0);
         expect(line).toBe(line.trim());
       }
+      if (fable.enrichedContent) {
+        expect(fable.enrichedContent.length).toBe(fable.content.length);
+        for (const line of fable.enrichedContent) {
+          expect(line.trim().length).toBeGreaterThan(0);
+          expect(line).toBe(line.trim());
+        }
+      }
     }
   });
 });

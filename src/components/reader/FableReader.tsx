@@ -7,8 +7,9 @@ import {
 } from 'lucide-react';
 import type { Poem, ReaderFontSize, ReaderPreferences } from '../../types/poetry';
 import { getAdjacentFables, toRomanNumeral } from '../../data/fablesQueries';
-import { cn } from '../../lib/utils';
+import { countEnrichedTerms } from '../../utils/enrichedText';
 import Card from '../ui/Card';
+import { EnrichedVerses } from './EnrichedVerses';
 import { ReaderControls } from './ReaderControls';
 
 interface FableReaderProps {
@@ -37,6 +38,7 @@ export function FableReader({
   onStartRecitation,
 }: FableReaderProps) {
   const { prev, next } = getAdjacentFables(poems, poem.id);
+  const definitionsCount = countEnrichedTerms(poem.enrichedContent);
 
   return (
     <div className="space-y-6">
@@ -78,32 +80,25 @@ export function FableReader({
                 {poem.author} · Livre {toRomanNumeral(poem.livre)}, fable {poem.number}
                 {poem.year ? ` (${poem.year})` : ''} · {poem.content.length} vers
               </p>
+              {definitionsCount > 0 && (
+                <p className="text-xs text-indigo-600/80 mt-1">
+                  Survolez ou touchez les mots soulignés en pointillés pour afficher leur définition ({definitionsCount} terme{definitionsCount > 1 ? 's' : ''}).
+                </p>
+              )}
             </div>
           </div>
         </div>
 
-        <article aria-label={poem.title} className="space-y-2.5 px-1 sm:px-4">
-          {poem.content.map((line, index) => (
-            <div key={index} className="flex items-baseline gap-4">
-              {preferences.showLineNumbers && (
-                <span
-                  className="text-xs font-sans text-gray-400 select-none w-7 text-right shrink-0 tabular-nums"
-                  aria-hidden="true"
-                >
-                  {index + 1}
-                </span>
-              )}
-              <p
-                className={cn(
-                  'font-serif text-gray-800',
-                  FONT_SIZE_CLASSES[preferences.fontSize]
-                )}
-              >
-                {line}
-              </p>
-            </div>
-          ))}
-        </article>
+        <EnrichedVerses
+          poem={poem}
+          as="article"
+          ariaLabel={poem.title}
+          showLineNumbers={preferences.showLineNumbers}
+          verseClassName={FONT_SIZE_CLASSES[preferences.fontSize]}
+          containerClassName="space-y-2.5 px-1 sm:px-4"
+          lineGapClassName="gap-4"
+          lineNumberWidthClassName="w-7"
+        />
 
         <nav
           aria-label="Navigation entre les fables"

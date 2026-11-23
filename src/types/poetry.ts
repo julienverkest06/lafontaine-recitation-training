@@ -10,6 +10,7 @@ export interface Poem {
   title: string;
   author: string;
   content: string[];
+  enrichedContent?: string[];
   year?: string;
   status: string;
   livre: number;

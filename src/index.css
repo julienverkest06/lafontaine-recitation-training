@@ -106,3 +106,30 @@
 .elegant-title:hover::after {
   content: '🐇';
 }
+
+/* ===== TERME ANNOTATIONS (MODE LECTURE) ===== */
+
+[data-terme] {
+  text-decoration: underline dotted #4f46e5;
+  text-underline-offset: 4px;
+  text-decoration-thickness: 1.5px;
+  cursor: help;
+  transition: color 0.15s ease;
+}
+
+[data-terme]:hover {
+  color: #4f46e5;
+}
+
+.terme-popover {
+  animation: terme-popover-fade 0.15s ease;
+}
+
+@keyframes terme-popover-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}

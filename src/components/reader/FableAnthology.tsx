@@ -9,6 +9,7 @@ import {
 } from '../../data/fablesQueries';
 import { cn } from '../../lib/utils';
 import Card from '../ui/Card';
+import { EnrichedVerses } from './EnrichedVerses';
 import { ReaderControls } from './ReaderControls';
 
 interface FableAnthologyProps {
@@ -176,28 +177,14 @@ export function FableAnthology({
                       </div>
                     </div>
 
-                    <div className="space-y-1.5">
-                      {poem.content.map((line, index) => (
-                        <div key={index} className="flex items-baseline gap-3">
-                          {preferences.showLineNumbers && (
-                            <span
-                              className="text-xs font-sans text-gray-400 select-none w-6 text-right shrink-0 tabular-nums"
-                              aria-hidden="true"
-                            >
-                              {index + 1}
-                            </span>
-                          )}
-                          <p
-                            className={cn(
-                              'font-serif text-gray-800',
-                              FONT_SIZE_CLASSES[preferences.fontSize]
-                            )}
-                          >
-                            {line}
-                          </p>
-                        </div>
-                      ))}
-                    </div>
+                    <EnrichedVerses
+                      poem={poem}
+                      showLineNumbers={preferences.showLineNumbers}
+                      verseClassName={FONT_SIZE_CLASSES[preferences.fontSize]}
+                      containerClassName="space-y-1.5"
+                      lineGapClassName="gap-3"
+                      lineNumberWidthClassName="w-6"
+                    />
                   </Card>
                 );
               })}
