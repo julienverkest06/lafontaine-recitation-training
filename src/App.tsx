@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
-import { BookOpen, PenLine } from 'lucide-react';
+import { BookOpen, Gamepad2, PenLine } from 'lucide-react';
 import { PoemDisplay } from './components/PoemDisplay';
 import { RecitationArea } from './components/recitation-area';
 import { SideMenu } from './components/side-menu';
@@ -7,8 +7,10 @@ import { CountdownTimer } from './components/CountdownTimer';
 import { Title } from './components/Title';
 import { FableReader } from './components/reader/FableReader';
 import { FableAnthology } from './components/reader/FableAnthology';
+import { GamesHub } from './components/games/GamesHub';
 import { fables } from './data/fables';
 import { findFableBySlug, sortFablesByBookOrder } from './data/fablesQueries';
+import { findGameBySlug, type GameHighScoreMap, type GameId } from './types/games';
 import type {
   AppMode,
   Difficulty,
@@ -26,6 +28,8 @@ import {
   hasVisitedBefore,
   getReaderPreferences,
   saveReaderPreferences,
+  getGameHighScores,
+  saveGameHighScore,
 } from './utils/localStorage';
 import { cn } from './lib/utils';
 
@@ -33,6 +37,7 @@ interface HashRoute {
   mode: AppMode;
   view?: 'single' | 'anthology';
   slug?: string;
+  gameId?: GameId;
 }
 
 function parseHashRoute(hash: string): HashRoute | null {
@@ -47,6 +52,10 @@ function parseHashRoute(hash: string): HashRoute | null {
   if (section === 'reciter') {
     return { mode: 'recite', slug };
   }
+  if (section === 'jeux') {
+    const matched = findGameBySlug(slug);
+    return { mode: 'games', gameId: matched?.id ?? 'corbeau-renard' };
+  }
   return null;
 }
 
@@ -59,6 +68,7 @@ function writeHash(hash: string): void {
 function getInitialState(): {
   mode: AppMode;
   selectedPoem: Poem | null;
+  selectedGameId: GameId;
   showCountdown: boolean;
   readerPreferences: ReaderPreferences;
 } {
@@ -66,11 +76,24 @@ function getInitialState(): {
   const initialRoute = parseHashRoute(window.location.hash);
 
   if (initialRoute) {
+    if (initialRoute.mode === 'games') {
+      const lastPoemId = getLastSelectedPoem();
+      const lastPoem = lastPoemId !== null ? fables.find((p) => p.id === lastPoemId) ?? null : null;
+      return {
+        mode: 'games',
+        selectedPoem: lastPoem,
+        selectedGameId: initialRoute.gameId ?? 'corbeau-renard',
+        showCountdown: false,
+        readerPreferences: basePrefs,
+      };
+    }
+
     if (initialRoute.mode === 'read') {
       const found = initialRoute.slug ? findFableBySlug(fables, initialRoute.slug) ?? null : null;
       return {
         mode: 'read',
         selectedPoem: found,
+        selectedGameId: 'corbeau-renard',
         showCountdown: false,
         readerPreferences: {
           ...basePrefs,
@@ -83,6 +106,7 @@ function getInitialState(): {
     return {
       mode: 'recite',
       selectedPoem: found,
+      selectedGameId: 'corbeau-renard',
       showCountdown: false,
       readerPreferences: basePrefs,
     };
@@ -94,6 +118,7 @@ function getInitialState(): {
     return {
       mode: 'recite',
       selectedPoem: lastPoem,
+      selectedGameId: 'corbeau-renard',
       showCountdown: false,
       readerPreferences: basePrefs,
     };
@@ -102,6 +127,7 @@ function getInitialState(): {
   return {
     mode: 'recite',
     selectedPoem: null,
+    selectedGameId: 'corbeau-renard',
     showCountdown: !hasVisitedBefore(),
     readerPreferences: basePrefs,
   };
@@ -113,6 +139,10 @@ function App() {
 
   const [mode, setMode] = useState<AppMode>(initial.mode);
   const [selectedPoem, setSelectedPoem] = useState<Poem | null>(initial.selectedPoem);
+  const [selectedGameId, setSelectedGameId] = useState<GameId>(initial.selectedGameId);
+  const [gameHighScores, setGameHighScores] = useState<GameHighScoreMap>(() =>
+    getGameHighScores()
+  );
   const [validatedLines, setValidatedLines] = useState<boolean[]>([]);
   const [totalVersesCount, setTotalVersesCount] = useState<number>(() => getVersesCount());
   const [recitedVerses, setRecitedVerses] = useState<RecitedVersesMap>(() => getRecitedVerses());
@@ -143,6 +173,14 @@ function App() {
     (route: HashRoute) => {
       setShowCountdown(false);
       setIsRecitationFocused(false);
+
+      if (route.mode === 'games') {
+        setMode('games');
+        if (route.gameId) {
+          setSelectedGameId(route.gameId);
+        }
+        return;
+      }
 
       if (route.mode === 'read') {
         setMode('read');
@@ -296,6 +334,19 @@ function App() {
     setSpokenWordStatuses(null);
   }, []);
 
+  const handleSelectGame = useCallback((gameId: GameId) => {
+    setMode('games');
+    setSelectedGameId(gameId);
+    setShowCountdown(false);
+    setIsRecitationFocused(false);
+    writeHash(`#/jeux/${gameId}`);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, []);
+
+  const handleGameHighScoreChange = useCallback((gameId: GameId, score: number) => {
+    setGameHighScores(saveGameHighScore(gameId, score));
+  }, []);
+
   const activeReaderPoem = selectedPoem ?? orderedFables[0];
 
   return (
@@ -309,6 +360,8 @@ function App() {
         mode={mode}
         readerView={readerPreferences.view}
         selectedPoemId={selectedPoem?.id.toString() ?? null}
+        selectedGameId={selectedGameId}
+        gameHighScores={gameHighScores}
         versesCount={totalVersesCount}
         isPinned={isMenuPinned}
         isFocused={isRecitationFocused}
@@ -317,6 +370,7 @@ function App() {
         onSelectPoem={handlePoemSelect}
         onReadPoem={handleReadPoem}
         onOpenAnthology={handleOpenAnthology}
+        onSelectGame={handleSelectGame}
       />
 
       <main
@@ -374,11 +428,36 @@ function App() {
               <BookOpen className="w-4 h-4" aria-hidden="true" />
               Lecture intégrale
             </button>
+            <button
+              type="button"
+              role="tab"
+              aria-selected={mode === 'games'}
+              onClick={() => handleSelectGame(selectedGameId)}
+              className={cn(
+                'inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg transition-colors',
+                mode === 'games'
+                  ? 'bg-indigo-600 text-white shadow-xs'
+                  : 'text-gray-600 hover:text-indigo-700'
+              )}
+            >
+              <Gamepad2 className="w-4 h-4" aria-hidden="true" />
+              Jeux
+            </button>
           </div>
         </div>
 
         <div className="max-w-4xl mx-auto space-y-8">
-          {mode === 'read' ? (
+          {mode === 'games' ? (
+            <GamesHub
+              selectedGameId={selectedGameId}
+              highScores={gameHighScores}
+              poems={fables}
+              onSelectGame={handleSelectGame}
+              onHighScoreChange={handleGameHighScoreChange}
+              onReadPoem={handleReadPoem}
+              onStartRecitation={handlePoemSelect}
+            />
+          ) : mode === 'read' ? (
             readerPreferences.view === 'anthology' ? (
               <FableAnthology
                 poems={fables}

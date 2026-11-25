@@ -1,4 +1,4 @@
-export type AppMode = 'recite' | 'read';
+export type AppMode = 'recite' | 'read' | 'games';
 export type ReaderViewMode = 'single' | 'anthology';
 export type ReaderFontSize = 'sm' | 'md' | 'lg';
 export type Difficulty = 'easy' | 'medium' | 'hard';

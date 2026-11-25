@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Menu as MenuIcon } from 'lucide-react';
 import { PoemList } from '../PoemList';
+import type { GameHighScoreMap, GameId } from '../../types/games';
 import type {
   AppMode,
   Difficulty,
@@ -10,6 +11,7 @@ import type {
 } from '../../types/poetry';
 import { cn } from '../../lib/utils';
 import { CollapsibleSection } from './CollapsibleSection';
+import { GamesMenuSection } from './GamesMenuSection';
 import { MenuHeader } from './MenuHeader';
 import { ReaderMenuSection } from './ReaderMenuSection';
 import { RecitedVersesList } from './RecitedVersesList';
@@ -22,6 +24,8 @@ interface SideMenuProps {
   mode: AppMode;
   readerView: ReaderViewMode;
   selectedPoemId: string | null;
+  selectedGameId: GameId;
+  gameHighScores: GameHighScoreMap;
   isPinned: boolean;
   isFocused: boolean;
   difficulty: Difficulty;
@@ -29,6 +33,7 @@ interface SideMenuProps {
   onSelectPoem: (poem: Poem) => void;
   onReadPoem: (poem: Poem) => void;
   onOpenAnthology: () => void;
+  onSelectGame: (gameId: GameId) => void;
 }
 
 const BLUR_AMOUNT: Record<Difficulty, string> = {
@@ -45,6 +50,8 @@ export function SideMenu({
   mode,
   readerView,
   selectedPoemId,
+  selectedGameId,
+  gameHighScores,
   isPinned,
   isFocused,
   difficulty,
@@ -52,6 +59,7 @@ export function SideMenu({
   onSelectPoem,
   onReadPoem,
   onOpenAnthology,
+  onSelectGame,
 }: SideMenuProps) {
   const [isOpen, setIsOpen] = useState(isPinned);
 
@@ -142,6 +150,18 @@ export function SideMenu({
                 }}
                 onOpenAnthology={() => {
                   onOpenAnthology();
+                  closeIfDrawer();
+                }}
+              />
+            </CollapsibleSection>
+
+            <CollapsibleSection title="Jeux" emoji="🎮" defaultOpen={true}>
+              <GamesMenuSection
+                mode={mode}
+                selectedGameId={selectedGameId}
+                highScores={gameHighScores}
+                onSelectGame={(gameId) => {
+                  onSelectGame(gameId);
                   closeIfDrawer();
                 }}
               />

@@ -1,3 +1,4 @@
+import type { GameHighScoreMap, GameId } from '../types/games';
 import type { ReaderPreferences, RecitedVersesMap } from '../types/poetry';
 
 const VERSES_COUNT_KEY = 'recitedVerses';
@@ -5,6 +6,7 @@ const RECITED_VERSES_KEY = 'recitedVersesDetails';
 const LAST_SELECTED_POEM_KEY = 'lastSelectedPoem';
 const HAS_VISITED_KEY = 'hasVisited';
 const READER_PREFERENCES_KEY = 'readerPreferences';
+const GAME_HIGH_SCORES_KEY = 'gameHighScores';
 
 const DEFAULT_READER_PREFERENCES: ReaderPreferences = {
   showLineNumbers: true,
@@ -128,4 +130,42 @@ export const getReaderPreferences = (): ReaderPreferences => {
 
 export const saveReaderPreferences = (preferences: ReaderPreferences): void => {
   safeSetItem(READER_PREFERENCES_KEY, JSON.stringify(preferences));
+};
+
+export const getGameHighScores = (): GameHighScoreMap => {
+  const raw = safeGetItem(GAME_HIGH_SCORES_KEY);
+  if (!raw) return {};
+
+  try {
+    const parsed: unknown = JSON.parse(raw);
+    if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
+      const result: GameHighScoreMap = {};
+      for (const [key, value] of Object.entries(parsed as Record<string, unknown>)) {
+        if (typeof value === 'number' && Number.isFinite(value) && value >= 0) {
+          result[key as GameId] = Math.floor(value);
+        }
+      }
+      return result;
+    }
+    return {};
+  } catch {
+    return {};
+  }
+};
+
+export const saveGameHighScore = (gameId: GameId, score: number): GameHighScoreMap => {
+  const scores = getGameHighScores();
+  const normalized = Math.max(0, Math.floor(score));
+  const currentBest = scores[gameId] ?? 0;
+
+  if (normalized > currentBest) {
+    const updated: GameHighScoreMap = {
+      ...scores,
+      [gameId]: normalized,
+    };
+    safeSetItem(GAME_HIGH_SCORES_KEY, JSON.stringify(updated));
+    return updated;
+  }
+
+  return scores;
 };

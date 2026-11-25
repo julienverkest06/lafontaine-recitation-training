@@ -54,21 +54,23 @@ flowchart TD
 
 ### 1. Orchestration et routage (`src/App.tsx`)
 
-`App.tsx` coordonne les deux modes de l'application (`'recite'` et `'read'`) et synchronise l'état avec le hash d'URL (compatible GitHub Pages) :
+`App.tsx` coordonne les trois modes de l'application (`'recite'`, `'read'` et `'games'`) et synchronise l'état avec le hash d'URL (compatible GitHub Pages) :
 
 - `#/reciter/:slug` : mode entraînement sur la fable indiquée.
 - `#/lire` : mode lecture intégrale en vue *Recueil complet*.
 - `#/lire/:slug` : mode lecture intégrale sur une fable précise.
+- `#/jeux` et `#/jeux/:gameId` : rubrique Jeux des Fables (premier jeu : *Le Corbeau et le Renard* en 3D).
 
 L'état est initialisé paresseusement sans `setState` synchrone dans un effet, et aucun événement global `window.CustomEvent` n'est utilisé entre composants.
 
 ### 2. Menu latéral (`src/components/side-menu/`)
 
 - **`index.tsx` (`SideMenu`)** : panneau latéral responsive (`w-full max-w-sm sm:w-96`), épinglé par défaut sur grand écran (`>= 1024px`). L'état `isPinned` est remonté à `App.tsx` pour ajuster dynamiquement la marge du contenu principal (`lg:pl-[400px]`).
-- Trois rubriques dépliables (`CollapsibleSection`) :
+- Quatre rubriques dépliables (`CollapsibleSection`) :
   1. **📚 Récitez des fables** (`PoemList`) : recherche, tri (Recueil / Titre / Longueur) et indicateur de maîtrise.
   2. **📖 Lire les fables** (`ReaderMenuSection`) : accès direct au recueil complet, filtres par Livre, recherche dans les titres et les vers, ouverture en lecture intégrale.
-  3. **✨ Vers récités** (`RecitedVersesList` + `Stats`) : historique détaillé par fable.
+  3. **🎮 Jeux** (`GamesMenuSection`) : accès aux mini-jeux inspirés des fables et affichage du meilleur score.
+  4. **✨ Vers récités** (`RecitedVersesList` + `Stats`) : historique détaillé par fable.
 
 ### 3. Lecture intégrale (`src/components/reader/`)
 
@@ -108,3 +110,10 @@ Toutes les lectures/écritures `localStorage` et appels `JSON.parse` sont proté
 | `lastSelectedPoem` | ID de la dernière fable consultée |
 | `hasVisited` | Statut de première visite |
 | `readerPreferences` | Préférences du mode Lecture (`showLineNumbers`, `fontSize`, `view`) |
+| `gameHighScores` | Meilleurs scores par mini-jeu (`GameHighScoreMap`) |
+
+### 8. Rubrique Jeux & 3D HTML-in-Canvas (`src/components/games/`, `src/games/corbeau-renard/`)
+
+- **`GamesHub.tsx` & `CorbeauRenardGame.tsx`** : rubrique Jeux extensible présentant le premier jeu *Le Corbeau et le Renard* en 3D.
+- **`src/games/corbeau-renard/engine.ts`** : simulation physique pure (déplacement fluide de Maître Renard aux flèches `←`/`→`, mécanique de *Vanité du Corbeau* qui accélère progressivement la cadence et la vitesse de chute, flatterie active sur `↑`, bonus Fromage d'Or).
+- **`src/games/corbeau-renard/renderer.ts` & `htmlInCanvasBridge.ts`** : moteur 3D WebGL2 cel-shading à contours encrés inspiré des gravures de fables, couplé à l'API WICG **HTML-in-Canvas** (`<canvas layoutsubtree content="drawable">`, `texElementSubImage2D`/`texElementImage2D`, `onpaint`/`requestPaint`) avec pont de compatibilité WebGL2 transparent pour les navigateurs sans drapeau expérimental.
