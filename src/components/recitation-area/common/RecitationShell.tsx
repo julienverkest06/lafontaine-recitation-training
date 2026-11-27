@@ -116,8 +116,10 @@ export function RecitationShell({
         )}
       >
         <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
-          <div className="flex items-center gap-4">
-            <h2 className="text-base font-serif text-gray-800">{heading}</h2>
+          <div className="flex flex-wrap items-center gap-3 sm:gap-4">
+            <h2 className="text-base font-serif font-semibold text-gray-900 whitespace-nowrap">
+              {heading}
+            </h2>
             <Toolbar>
               <Tooltip content={modeSwitchTooltip} className="left-full ml-2">
                 <ToolbarButton

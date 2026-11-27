@@ -124,7 +124,7 @@ export function FableAnthology({
         grouped.map((group) => (
           <section key={group.livre} className="space-y-4">
             <div className="flex items-center gap-3 px-1">
-              <h3 className="text-xl font-serif font-semibold text-indigo-900">
+              <h3 className="text-xl font-serif font-semibold text-gray-900">
                 Livre {toRomanNumeral(group.livre)}
               </h3>
               <span className="text-xs text-indigo-600 bg-indigo-50 px-2.5 py-0.5 rounded-full font-medium">

@@ -150,7 +150,12 @@ export function ReaderMenuSection({
                   <div className="font-serif text-sm font-medium text-gray-800 line-clamp-1">
                     {poem.title}
                   </div>
-                  <div className="text-xs text-gray-500">
+                  <div
+                    className={cn(
+                      'text-xs tabular-nums',
+                      isActive ? 'text-indigo-900/80' : 'text-gray-600'
+                    )}
+                  >
                     Livre {toRomanNumeral(poem.livre)} · {poem.content.length} vers
                   </div>
                 </div>

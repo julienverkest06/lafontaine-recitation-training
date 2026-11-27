@@ -81,7 +81,7 @@ export function FableReader({
                 {poem.year ? ` (${poem.year})` : ''} · {poem.content.length} vers
               </p>
               {definitionsCount > 0 && (
-                <p className="text-xs text-indigo-600/80 mt-1">
+                <p className="text-xs text-indigo-700 mt-1">
                   Survolez ou touchez les mots soulignés en pointillés pour afficher leur définition ({definitionsCount} terme{definitionsCount > 1 ? 's' : ''}).
                 </p>
               )}

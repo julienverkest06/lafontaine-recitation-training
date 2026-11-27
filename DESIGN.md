@@ -1,5 +1,5 @@
 ---
-name: Les Fables de La Fontaine
+name: Fables de La Fontaine
 description: Rigueur éditoriale contemporaine et contrôles discrets au service de la lecture annotée et de la récitation active des Fables.
 colors:
   encre-indigo: "#4f46e5"
@@ -124,13 +124,13 @@ components:
     padding: "4px 16px"
 ---
 
-# Design System: Les Fables de La Fontaine
+# Design System: Fables de La Fontaine
 
 ## Overview
 
 **Creative North Star: "La Bibliothèque Éclairée"**
 
-L'interface de *Les Fables de La Fontaine* marie une rigueur éditoriale contemporaine à une grande clarté pédagogique. Les feuillets de lecture et de récitation en papier blanc reposent avec légèreté sur un fond lumineux à peine teinté, laissant aux vers classiques toute leur respiration. Le chrome applicatif — onglets, réglages de lecture, filtres et tiroir latéral — reste raffiné, précis et retenu afin de s'effacer devant le texte dès que la lecture ou la mémorisation commence.
+L'interface des *Fables de La Fontaine* marie une rigueur éditoriale contemporaine à une grande clarté pédagogique. Les feuillets de lecture et de récitation en papier blanc reposent avec légèreté sur un fond lumineux à peine teinté, laissant aux vers classiques toute leur respiration. Le chrome applicatif — onglets, réglages de lecture, filtres et tiroir latéral — reste raffiné, précis et retenu afin de s'effacer devant le texte dès que la lecture ou la mémorisation commence.
 
 Cette esthétique lumineuse et littéraire sans austérité tient à distance deux écueils opposés : ni « vieux grimoire poussiéreux » aux textures vieillies et ornements lourds, ni « tableau de bord SaaS froid » saturé de widgets et de cadres techniques. Les rares notes ludiques — plume dorée du logo, jeu 3D du Corbeau et du Renard, validation progressive en vert laurier — accompagnent l'effort d'apprentissage sans jamais rompre le calme de la page.
 

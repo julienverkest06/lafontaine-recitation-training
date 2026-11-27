@@ -32,7 +32,7 @@ export function GamesHub({
         <div className="flex items-center justify-between gap-2 mb-3">
           <div className="flex items-center gap-2">
             <Gamepad2 className="w-5 h-5 text-indigo-600" aria-hidden="true" />
-            <h2 className="font-serif text-lg font-semibold text-indigo-950">
+            <h2 className="font-serif text-lg font-semibold text-gray-900">
               Jeux des Fables
             </h2>
           </div>

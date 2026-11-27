@@ -587,19 +587,16 @@ export function CorbeauRenardGame({
         {snapshot.status === 'idle' && (
           <div className="absolute inset-0 flex items-center justify-center p-4 bg-[#f4e9cf]/35 backdrop-blur-[1px]">
             <div className="max-w-md w-full bg-[#fbf4df]/95 border-2 border-[#1f1610] rounded-2xl shadow-xl p-6 text-center space-y-4">
-              <div className="space-y-1">
-                <p className="text-xs font-semibold uppercase tracking-widest text-[#9c321c]">
-                  Fable interactive en 3D
-                </p>
+              <div className="space-y-1.5">
                 <h3 className="font-serif text-2xl font-bold text-[#1f1610]">
                   Le Corbeau et le Renard
                 </h3>
-                <p className="text-sm text-[#4f3d2b] leading-relaxed">
-                  Chaque fromage rattrapé flatte la vanité de Maître Corbeau : son ramage s’emballe et les fromages pleuvent toujours plus vite !
+                <p className="text-sm text-[#4f3d2b] leading-relaxed text-pretty">
+                  Fable interactive en 3D — chaque fromage rattrapé flatte la vanité de Maître Corbeau : son ramage s’emballe et les fromages pleuvent toujours plus vite !
                 </p>
               </div>
 
-              <div className="grid grid-cols-3 gap-2 text-xs text-[#3b2c1d] bg-[#f3e5c0]/80 rounded-xl p-2.5 border border-amber-300/80">
+              <div className="grid grid-cols-3 gap-2 text-xs text-[#3b2c1d] border-y border-amber-300/80 py-3">
                 <div>
                   <div className="font-bold">← / →</div>
                   <div className="text-[#665038]">Déplacer le renard</div>

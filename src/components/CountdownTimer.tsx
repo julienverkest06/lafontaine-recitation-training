@@ -26,7 +26,7 @@ export function CountdownTimer({ seconds, onComplete }: CountdownTimerProps) {
       <p className="text-2xl font-serif text-gray-800 mb-4">
         Sélection aléatoire d'une fable dans...
       </p>
-      <div className="text-5xl font-bold text-indigo-600 font-serif">
+      <div className="text-5xl font-bold text-gray-900 font-serif tabular-nums">
         {timeLeft}
       </div>
       <p className="mt-4 text-gray-600 italic">

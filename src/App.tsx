@@ -379,11 +379,11 @@ function App() {
           isMenuPinned && 'lg:pl-[400px]'
         )}
       >
-        <Title text="Les Fables de La Fontaine" />
+        <Title text="Fables de La Fontaine" />
 
         <div className="max-w-4xl mx-auto mb-6 flex justify-center">
           <div
-            className="inline-flex rounded-xl bg-white/80 backdrop-blur-xs p-1 shadow-xs border border-indigo-100"
+            className="inline-flex max-w-full rounded-xl bg-white/80 backdrop-blur-xs p-1 shadow-xs border border-indigo-100"
             role="tablist"
             aria-label="Mode de l'application"
           >
@@ -398,13 +398,13 @@ function App() {
                 }
               }}
               className={cn(
-                'inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg transition-colors',
+                'inline-flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium rounded-lg whitespace-nowrap transition-colors',
                 mode === 'recite'
                   ? 'bg-indigo-600 text-white shadow-xs'
-                  : 'text-gray-600 hover:text-indigo-700'
+                  : 'text-gray-700 hover:text-indigo-700'
               )}
             >
-              <PenLine className="w-4 h-4" aria-hidden="true" />
+              <PenLine className="w-4 h-4 shrink-0" aria-hidden="true" />
               Récitation
             </button>
             <button
@@ -419,13 +419,13 @@ function App() {
                 }
               }}
               className={cn(
-                'inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg transition-colors',
+                'inline-flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium rounded-lg whitespace-nowrap transition-colors',
                 mode === 'read'
                   ? 'bg-indigo-600 text-white shadow-xs'
-                  : 'text-gray-600 hover:text-indigo-700'
+                  : 'text-gray-700 hover:text-indigo-700'
               )}
             >
-              <BookOpen className="w-4 h-4" aria-hidden="true" />
+              <BookOpen className="w-4 h-4 shrink-0" aria-hidden="true" />
               Lecture intégrale
             </button>
             <button
@@ -434,13 +434,13 @@ function App() {
               aria-selected={mode === 'games'}
               onClick={() => handleSelectGame(selectedGameId)}
               className={cn(
-                'inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg transition-colors',
+                'inline-flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium rounded-lg whitespace-nowrap transition-colors',
                 mode === 'games'
                   ? 'bg-indigo-600 text-white shadow-xs'
-                  : 'text-gray-600 hover:text-indigo-700'
+                  : 'text-gray-700 hover:text-indigo-700'
               )}
             >
-              <Gamepad2 className="w-4 h-4" aria-hidden="true" />
+              <Gamepad2 className="w-4 h-4 shrink-0" aria-hidden="true" />
               Jeux
             </button>
           </div>

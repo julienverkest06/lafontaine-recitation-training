@@ -18,8 +18,8 @@ export function GamesMenuSection({
 }: GamesMenuSectionProps) {
   return (
     <div className="space-y-2.5">
-      <p className="text-xs text-gray-500 leading-relaxed">
-        Redécouvrez les fables de Jean de La Fontaine en mini-jeux interactifs.
+      <p className="text-xs text-gray-600 leading-relaxed text-pretty">
+        Redécouvrez les fables de Jean de La Fontaine en mini-jeux&nbsp;interactifs.
       </p>
 
       <div className="space-y-2">
@@ -57,7 +57,14 @@ export function GamesMenuSection({
                       aria-hidden="true"
                     />
                   </div>
-                  <div className="text-xs text-gray-500 mt-0.5">{game.subtitle}</div>
+                  <div
+                    className={cn(
+                      'text-xs mt-0.5',
+                      isActive ? 'text-indigo-900/80' : 'text-gray-600'
+                    )}
+                  >
+                    {game.subtitle}
+                  </div>
                   <div className="mt-1.5 flex items-center justify-between gap-2">
                     <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium bg-amber-100 text-amber-900">
                       {game.techBadge}

@@ -4,7 +4,7 @@ interface TitleProps {
 
 export function Title({ text }: TitleProps) {
   return (
-    <header className="text-center mb-4">
+    <header className="text-center mb-4 px-14 lg:px-0">
       <h1 className="bookplate-title">
         <span className="bookplate-title-rule" aria-hidden="true">
           <span className="bookplate-title-line" />

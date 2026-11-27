@@ -207,7 +207,7 @@ export function EnrichedVerses({
       {showLineNumbers && (
         <span
           className={cn(
-            'text-xs font-sans text-gray-400 select-none text-right shrink-0 tabular-nums',
+            'text-xs font-sans text-gray-500 select-none text-right shrink-0 tabular-nums',
             lineNumberWidthClassName
           )}
           aria-hidden="true"

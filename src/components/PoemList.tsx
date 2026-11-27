@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { BookOpen, Search, Filter, CheckCircle2 } from 'lucide-react';
 import type { PoemListProps } from '../types/poetry';
-import { searchFables, sortFablesByBookOrder } from '../data/fablesQueries';
+import { searchFables, sortFablesByBookOrder, toRomanNumeral } from '../data/fablesQueries';
 import { cn } from '../lib/utils';
 
 type SortOrder = 'book' | 'title' | 'length';
@@ -100,8 +100,13 @@ export function PoemList({
                   <h3 className="font-serif text-sm font-medium text-gray-800 line-clamp-1">
                     {poem.title}
                   </h3>
-                  <span className="text-xs text-gray-500">
-                    Livre {poem.livre} · {poem.content.length} vers
+                  <span
+                    className={cn(
+                      'text-xs tabular-nums',
+                      isSelected ? 'text-indigo-900/80' : 'text-gray-600'
+                    )}
+                  >
+                    Livre {toRomanNumeral(poem.livre)} · {poem.content.length} vers
                   </span>
                 </div>
               </div>

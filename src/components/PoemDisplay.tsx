@@ -1,5 +1,6 @@
 import { Quote } from 'lucide-react';
 import { VERSES_PER_SECTION } from '../constants/recitation';
+import { toRomanNumeral } from '../data/fablesQueries';
 import type { Difficulty, PoemDisplayProps, WordMatchStatus } from '../types/poetry';
 import { compareCharacters } from '../utils/validation';
 import { cn } from '../lib/utils';
@@ -34,7 +35,7 @@ function renderSpokenWordHighlight(line: string, wordStatuses: WordMatchStatus[]
                   className={cn(
                     'transition-colors',
                     status === 'matched' && 'text-green-600 font-medium',
-                    status === 'pending' && 'text-gray-400',
+                    status === 'pending' && 'text-gray-500',
                     status === 'missed' && 'text-amber-600 underline decoration-dotted'
                   )}
                 >
@@ -57,7 +58,7 @@ function renderSpokenWordHighlight(line: string, wordStatuses: WordMatchStatus[]
         className={cn(
           'transition-colors',
           status === 'matched' && 'text-green-600 font-medium',
-          status === 'pending' && 'text-gray-400',
+          status === 'pending' && 'text-gray-500',
           status === 'missed' && 'text-amber-600 underline decoration-dotted'
         )}
       >
@@ -83,17 +84,17 @@ function renderHintedLine(
   if (difficulty === 'hard') {
     if (absoluteIndex === currentLineIndex) {
       return (
-        <span className="text-gray-400 italic text-base">
+        <span className="text-gray-600 italic text-base">
           Mode difficile : récitez le vers {absoluteIndex + 1} de mémoire...
         </span>
       );
     }
-    return <span className="text-gray-300 select-none">••••••••••••</span>;
+    return <span className="text-gray-500 select-none">••••••••••••</span>;
   }
 
   if (difficulty === 'medium') {
     return (
-      <span className="text-gray-500 tracking-wide">
+      <span className="text-gray-600 tracking-wide">
         {maskForMediumDifficulty(line)}
       </span>
     );
@@ -118,7 +119,7 @@ function renderHintedLine(
         className={cn(
           'transition-colors',
           status === 'correct' && 'text-green-600 font-medium',
-          status === 'pending' && 'text-gray-400',
+          status === 'pending' && 'text-gray-500',
           status === 'incorrect' && 'text-red-600'
         )}
       >
@@ -151,9 +152,9 @@ export function PoemDisplay({
       <div className="flex items-center gap-3 mb-6">
         <Quote className="w-8 h-8 text-indigo-600 shrink-0" aria-hidden="true" />
         <div>
-          <h2 className="text-3xl font-serif text-gray-800">{poem.title}</h2>
-          <p className="text-lg text-gray-600">
-            Livre {poem.livre}, fable {poem.number}
+          <h2 className="text-3xl font-serif font-semibold text-gray-900">{poem.title}</h2>
+          <p className="text-base text-gray-600">
+            Livre {toRomanNumeral(poem.livre)}, fable {poem.number}
             {poem.year ? ` (${poem.year})` : ''}
           </p>
         </div>
