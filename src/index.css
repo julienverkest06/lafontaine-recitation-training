@@ -23,48 +23,41 @@
   }
 }
 
-.elegant-title {
-  font-family: 'Cormorant Garamond', serif;
-  position: relative;
-  display: inline-block;
-  text-align: center;
+.bookplate-title {
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-size: clamp(1.65rem, 3vw, 2.45rem);
+  font-weight: 600;
+  line-height: 1.2;
+  letter-spacing: 0.04em;
+  color: #312e81;
+  text-wrap: balance;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.9rem;
+  margin: 0;
+  padding: 0.35rem 0.5rem;
+  max-width: 100%;
+}
+
+.bookplate-title-rule {
+  display: none;
+  align-items: center;
+  gap: 0.4rem;
   color: #4f46e5;
-  padding: 0.5em 2em;
-  letter-spacing: 0.05em;
+  flex-shrink: 0;
 }
 
-.elegant-title::before,
-.elegant-title::after {
-  content: '🦊';
-  position: absolute;
-  font-size: 1.75rem;
-  top: 50%;
-  transform: translateY(-50%);
+.bookplate-title-line {
+  display: block;
+  width: 2.75rem;
+  height: 1px;
+  background: #c7d2fe;
 }
 
-.elegant-title::before {
-  left: 0;
-  transform: translateY(-50%) scaleX(-1);
-}
-
-.elegant-title::after {
-  right: 0;
-}
-
-.elegant-title span {
-  position: relative;
-  display: inline-block;
-  animation: float 6s ease-in-out infinite;
-  animation-delay: calc(0.1s * var(--char-index));
-}
-
-@keyframes float {
-  0%,
-  100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-3px);
+@media (min-width: 640px) {
+  .bookplate-title-rule {
+    display: inline-flex;
   }
 }
 
@@ -93,18 +86,6 @@
 
 .elegant-subtitle::after {
   right: 0.5em;
-}
-
-.elegant-title:hover span {
-  animation-play-state: paused;
-}
-
-.elegant-title:hover::before {
-  content: '🐺';
-}
-
-.elegant-title:hover::after {
-  content: '🐇';
 }
 
 /* ===== TERME ANNOTATIONS (MODE LECTURE) ===== */

@@ -12,5 +12,5 @@
     "unicorn/no-null": "off",
     "unicorn/require-post-message-target-origin": "off"
   },
-  "ignorePatterns": ["dist", "node_modules", "coverage", "playwright-report", "test-results"]
+  "ignorePatterns": ["dist", "node_modules", "coverage", "playwright-report", "test-results", ".agent", ".agents", ".impeccable"]
 }

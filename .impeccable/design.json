@@ -1,0 +1,335 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-11-27T18:25:00+01:00",
+  "title": "Design System: Les Fables de La Fontaine",
+  "extensions": {
+    "colorMeta": {
+      "encre-indigo": {
+        "role": "primary",
+        "displayName": "Encre Indigo",
+        "canonical": "#4f46e5",
+        "tonalRamp": ["#1e1b4b", "#312e81", "#3730a3", "#4338ca", "#4f46e5", "#6366f1", "#a5b4fc", "#eef2ff"]
+      },
+      "encre-indigo-profonde": {
+        "role": "primary",
+        "displayName": "Encre Indigo Profonde",
+        "canonical": "#4338ca",
+        "tonalRamp": ["#1e1b4b", "#312e81", "#3730a3", "#4338ca", "#4f46e5", "#818cf8", "#c7d2fe", "#eef2ff"]
+      },
+      "lavis-indigo": {
+        "role": "primary",
+        "displayName": "Lavis Indigo",
+        "canonical": "#eef2ff",
+        "tonalRamp": ["#312e81", "#4338ca", "#4f46e5", "#6366f1", "#818cf8", "#c7d2fe", "#e0e7ff", "#eef2ff"]
+      },
+      "filet-indigo": {
+        "role": "primary",
+        "displayName": "Filet Indigo",
+        "canonical": "#e0e7ff",
+        "tonalRamp": ["#312e81", "#4338ca", "#6366f1", "#818cf8", "#a5b4fc", "#c7d2fe", "#e0e7ff", "#eef2ff"]
+      },
+      "indigo-doux": {
+        "role": "primary",
+        "displayName": "Indigo Doux",
+        "canonical": "#818cf8",
+        "tonalRamp": ["#312e81", "#3730a3", "#4f46e5", "#6366f1", "#818cf8", "#a5b4fc", "#c7d2fe", "#eef2ff"]
+      },
+      "plume-dor": {
+        "role": "secondary",
+        "displayName": "Plume d'Or",
+        "canonical": "#fbbf24",
+        "tonalRamp": ["#451a03", "#78350f", "#b45309", "#d97706", "#f59e0b", "#fbbf24", "#fde68a", "#fffbeb"]
+      },
+      "ambre-vocal": {
+        "role": "secondary",
+        "displayName": "Ambre Vocal",
+        "canonical": "#d97706",
+        "tonalRamp": ["#451a03", "#78350f", "#92400e", "#b45309", "#d97706", "#f59e0b", "#fcd34d", "#fffbeb"]
+      },
+      "lavis-ambre": {
+        "role": "secondary",
+        "displayName": "Lavis Ambre",
+        "canonical": "#fffbeb",
+        "tonalRamp": ["#78350f", "#b45309", "#d97706", "#f59e0b", "#fbbf24", "#fde68a", "#fef3c7", "#fffbeb"]
+      },
+      "laurier-vif": {
+        "role": "tertiary",
+        "displayName": "Laurier Vif",
+        "canonical": "#16a34a",
+        "tonalRamp": ["#052e16", "#14532d", "#166534", "#15803d", "#16a34a", "#22c55e", "#86efac", "#f0fdf4"]
+      },
+      "laurier-barre": {
+        "role": "tertiary",
+        "displayName": "Laurier Barre",
+        "canonical": "#22c55e",
+        "tonalRamp": ["#052e16", "#14532d", "#15803d", "#16a34a", "#22c55e", "#4ade80", "#bbf7d0", "#f0fdf4"]
+      },
+      "lavis-laurier": {
+        "role": "tertiary",
+        "displayName": "Lavis Laurier",
+        "canonical": "#f0fdf4",
+        "tonalRamp": ["#14532d", "#166534", "#16a34a", "#22c55e", "#4ade80", "#86efac", "#dcfce7", "#f0fdf4"]
+      },
+      "carmin-erreur": {
+        "role": "tertiary",
+        "displayName": "Carmin Erreur",
+        "canonical": "#dc2626",
+        "tonalRamp": ["#450a0a", "#7f1d1d", "#991b1b", "#b91c1c", "#dc2626", "#ef4444", "#fca5a5", "#fef2f2"]
+      },
+      "papier-blanc": {
+        "role": "neutral",
+        "displayName": "Papier Blanc",
+        "canonical": "#ffffff",
+        "tonalRamp": ["#111827", "#374151", "#6b7280", "#9ca3af", "#d1d5db", "#e5e7eb", "#f9fafb", "#ffffff"]
+      },
+      "brume-lavande": {
+        "role": "neutral",
+        "displayName": "Brume Lavande",
+        "canonical": "#f9fafb",
+        "tonalRamp": ["#111827", "#1f2937", "#4b5563", "#6b7280", "#9ca3af", "#d1d5db", "#f3f4f6", "#f9fafb"]
+      },
+      "papier-cendre": {
+        "role": "neutral",
+        "displayName": "Papier Cendré",
+        "canonical": "#f3f4f6",
+        "tonalRamp": ["#111827", "#1f2937", "#374151", "#6b7280", "#9ca3af", "#d1d5db", "#e5e7eb", "#f3f4f6"]
+      },
+      "filet-neutre": {
+        "role": "neutral",
+        "displayName": "Filet Neutre",
+        "canonical": "#e5e7eb",
+        "tonalRamp": ["#111827", "#1f2937", "#374151", "#6b7280", "#9ca3af", "#d1d5db", "#e5e7eb", "#f9fafb"]
+      },
+      "filet-champ": {
+        "role": "neutral",
+        "displayName": "Filet Champ",
+        "canonical": "#d1d5db",
+        "tonalRamp": ["#111827", "#1f2937", "#374151", "#6b7280", "#9ca3af", "#d1d5db", "#e5e7eb", "#f9fafb"]
+      },
+      "encre-noire": {
+        "role": "neutral",
+        "displayName": "Encre Noire",
+        "canonical": "#111827",
+        "tonalRamp": ["#030712", "#111827", "#1f2937", "#374151", "#4b5563", "#6b7280", "#9ca3af", "#e5e7eb"]
+      },
+      "encre-vers": {
+        "role": "neutral",
+        "displayName": "Encre Vers",
+        "canonical": "#1f2937",
+        "tonalRamp": ["#030712", "#111827", "#1f2937", "#374151", "#4b5563", "#6b7280", "#9ca3af", "#e5e7eb"]
+      },
+      "encre-secondaire": {
+        "role": "neutral",
+        "displayName": "Encre Secondaire",
+        "canonical": "#374151",
+        "tonalRamp": ["#111827", "#1f2937", "#374151", "#4b5563", "#6b7280", "#9ca3af", "#d1d5db", "#f3f4f6"]
+      },
+      "encre-corps": {
+        "role": "neutral",
+        "displayName": "Encre Corps",
+        "canonical": "#4b5563",
+        "tonalRamp": ["#111827", "#1f2937", "#374151", "#4b5563", "#6b7280", "#9ca3af", "#d1d5db", "#f3f4f6"]
+      },
+      "encre-discrete": {
+        "role": "neutral",
+        "displayName": "Encre Discrète",
+        "canonical": "#6b7280",
+        "tonalRamp": ["#111827", "#374151", "#4b5563", "#6b7280", "#9ca3af", "#d1d5db", "#e5e7eb", "#f9fafb"]
+      },
+      "encre-attente": {
+        "role": "neutral",
+        "displayName": "Encre Attente",
+        "canonical": "#9ca3af",
+        "tonalRamp": ["#1f2937", "#374151", "#4b5563", "#6b7280", "#9ca3af", "#d1d5db", "#e5e7eb", "#f9fafb"]
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Display — Cormorant Garamond",
+        "purpose": "Titre principal patrimonial de l'application centré en haut de scène."
+      },
+      "headline": {
+        "displayName": "Headline — Lora",
+        "purpose": "Titre de la fable active en mode Lecture intégrale ou Récitation."
+      },
+      "title": {
+        "displayName": "Title — Lora",
+        "purpose": "Titres de sections éditoriales, en-têtes de modales et cartes de jeux."
+      },
+      "verse": {
+        "displayName": "Verse — Lora",
+        "purpose": "Corps poétique des vers (tailles réglables sm/md/lg avec interligne généreux)."
+      },
+      "body": {
+        "displayName": "Body — Inter",
+        "purpose": "Libellés d'interface, boutons, onglets, champs de saisie et textes d'aide."
+      },
+      "label": {
+        "displayName": "Label — Inter",
+        "purpose": "Métadonnées de Livre, badges d'état, compteurs et numéros de vers tabulaires."
+      }
+    },
+    "shadows": [
+      {
+        "name": "control-subtle",
+        "value": "0 1px 2px 0 rgba(0, 0, 0, 0.05)",
+        "purpose": "Onglet actif, barre d'onglets translucide, bouton primaire et cartes de jeu sélectionnées."
+      },
+      {
+        "name": "sheet-resting",
+        "value": "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1)",
+        "purpose": "Cartes principales de lecture et de récitation posées sur la Brume Lavande."
+      },
+      {
+        "name": "floating-trigger",
+        "value": "0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1)",
+        "purpose": "Bouton flottant d'ouverture du menu et info-bulles sombres."
+      },
+      {
+        "name": "overlay-surface",
+        "value": "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1)",
+        "purpose": "Infobulles de définitions XVIIe (terme-popover) et modales de confirmation."
+      },
+      {
+        "name": "drawer-surface",
+        "value": "0 25px 50px -12px rgba(0, 0, 0, 0.25)",
+        "purpose": "Panneau latéral fixe (SideMenu) au-dessus de la scène."
+      }
+    ],
+    "motion": [
+      {
+        "name": "color-shift",
+        "value": "150ms cubic-bezier(0.4, 0, 0.2, 1)",
+        "purpose": "Transition standard sur les boutons, onglets, liens de navigation et termes annotés."
+      },
+      {
+        "name": "layout-drawer",
+        "value": "300ms cubic-bezier(0.4, 0, 0.2, 1)",
+        "purpose": "Ouverture/fermeture du tiroir latéral, décalage du contenu et validation de vers."
+      },
+      {
+        "name": "progress-fill",
+        "value": "500ms cubic-bezier(0.4, 0, 0.2, 1)",
+        "purpose": "Remplissage fluide de la barre de progression Laurier."
+      },
+      {
+        "name": "popover-fade",
+        "value": "150ms ease",
+        "purpose": "Apparition douce en opacité des définitions de vocabulaire XVIIe."
+      }
+    ],
+    "breakpoints": [
+      { "name": "sm", "value": "640px" },
+      { "name": "md", "value": "768px" },
+      { "name": "lg", "value": "1024px" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Action principale (lancer la récitation d'une fable, confirmer une action).",
+      "html": "<button type=\"button\" class=\"ds-btn-primary\"><svg class=\"ds-icon\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M12 20h9\"/><path d=\"M16.376 3.622a1 1 0 0 1 3.002 3.002L7.368 18.635a2 2 0 0 1-.855.506l-2.872.838a.5.5 0 0 1-.62-.62l.838-2.872a2 2 0 0 1 .506-.854z\"/></svg><span>S'entraîner sur cette fable</span></button>",
+      "css": ".ds-btn-primary { display: inline-flex; align-items: center; gap: 8px; padding: 8px 16px; background: #4f46e5; color: #ffffff; font-family: Inter, ui-sans-serif, system-ui, sans-serif; font-size: 14px; font-weight: 500; line-height: 20px; border: none; border-radius: 8px; box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); cursor: pointer; transition: background-color 150ms ease, box-shadow 150ms ease; } .ds-btn-primary:hover { background: #4338ca; } .ds-btn-primary:focus-visible { outline: 2px solid #4f46e5; outline-offset: 2px; } .ds-btn-primary .ds-icon { width: 16px; height: 16px; flex-shrink: 0; }"
+    },
+    {
+      "name": "Secondary Navigation Button",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "Bouton secondaire bordé utilisé pour la navigation entre fables et les actions de tri.",
+      "html": "<button type=\"button\" class=\"ds-btn-secondary\"><span>Fable suivante</span><svg class=\"ds-icon\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M5 12h14\"/><path d=\"m12 5 7 7-7 7\"/></svg></button>",
+      "css": ".ds-btn-secondary { display: inline-flex; align-items: center; gap: 8px; padding: 10px 16px; background: #ffffff; color: #374151; font-family: Inter, ui-sans-serif, system-ui, sans-serif; font-size: 14px; font-weight: 500; border: 1px solid #e5e7eb; border-radius: 8px; cursor: pointer; transition: background-color 150ms ease, border-color 150ms ease, color 150ms ease; } .ds-btn-secondary:hover { background: rgba(238, 242, 255, 0.5); border-color: #a5b4fc; color: #1f2937; } .ds-btn-secondary:focus-visible { outline: 2px solid #4f46e5; outline-offset: 2px; } .ds-btn-secondary .ds-icon { width: 16px; height: 16px; color: #4f46e5; flex-shrink: 0; }"
+    },
+    {
+      "name": "Mode Tab Switcher",
+      "kind": "nav",
+      "refersTo": "tab-active",
+      "description": "Sélecteur principal des trois modes applicatifs (Récitation, Lecture intégrale, Jeux).",
+      "html": "<div class=\"ds-tablist\" role=\"tablist\" aria-label=\"Mode de l'application\"><button type=\"button\" role=\"tab\" aria-selected=\"true\" class=\"ds-tab ds-tab-active\">Récitation</button><button type=\"button\" role=\"tab\" aria-selected=\"false\" class=\"ds-tab\">Lecture intégrale</button><button type=\"button\" role=\"tab\" aria-selected=\"false\" class=\"ds-tab\">Jeux</button></div>",
+      "css": ".ds-tablist { display: inline-flex; gap: 4px; padding: 4px; background: rgba(255, 255, 255, 0.85); border: 1px solid #e0e7ff; border-radius: 12px; box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); backdrop-filter: blur(4px); } .ds-tab { padding: 8px 16px; font-family: Inter, ui-sans-serif, system-ui, sans-serif; font-size: 14px; font-weight: 500; color: #4b5563; background: transparent; border: none; border-radius: 8px; cursor: pointer; transition: background-color 150ms ease, color 150ms ease; } .ds-tab:hover { color: #4338ca; } .ds-tab:focus-visible { outline: 2px solid #4f46e5; outline-offset: 2px; } .ds-tab-active, .ds-tab-active:hover { background: #4f46e5; color: #ffffff; box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); }"
+    },
+    {
+      "name": "Editorial Sheet Card",
+      "kind": "card",
+      "refersTo": "card-sheet",
+      "description": "Feuillet blanc standard portant une fable en lecture ou une section de récitation.",
+      "html": "<article class=\"ds-card\"><div class=\"ds-card-header\"><h2 class=\"ds-card-title\">Le Corbeau et le Renard</h2><p class=\"ds-card-meta\">Jean de La Fontaine · Livre I, fable 2 (1668) · 18 vers</p></div><p class=\"ds-card-verse\">Maître Corbeau, sur un arbre perché,</p><p class=\"ds-card-verse\">Tenait en son bec un fromage.</p></article>",
+      "css": ".ds-card { background: #ffffff; border: 1px solid rgba(224, 231, 255, 0.8); border-radius: 8px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1); padding: 24px; max-width: 520px; } .ds-card-header { padding-bottom: 16px; margin-bottom: 16px; border-bottom: 1px solid #f3f4f6; } .ds-card-title { margin: 0; font-family: Lora, Georgia, serif; font-size: 24px; font-weight: 600; color: #111827; line-height: 1.25; } .ds-card-meta { margin: 6px 0 0; font-family: Inter, ui-sans-serif, system-ui, sans-serif; font-size: 13px; color: #4b5563; } .ds-card-verse { margin: 0 0 8px; font-family: Lora, Georgia, serif; font-size: 18px; line-height: 1.625; color: #1f2937; }"
+    },
+    {
+      "name": "Search Input",
+      "kind": "input",
+      "refersTo": "input-field",
+      "description": "Champ de recherche plein texte dans les titres et les vers (menu latéral et recueil).",
+      "html": "<div class=\"ds-search-wrap\"><svg class=\"ds-search-icon\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><circle cx=\"11\" cy=\"11\" r=\"8\"/><path d=\"m21 21-4.3-4.3\"/></svg><input type=\"text\" class=\"ds-input\" placeholder=\"Rechercher une fable...\" aria-label=\"Rechercher une fable\" /></div>",
+      "css": ".ds-search-wrap { position: relative; max-width: 320px; } .ds-search-icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); width: 16px; height: 16px; color: #9ca3af; pointer-events: none; } .ds-input { width: 100%; padding: 8px 16px 8px 40px; font-family: Inter, ui-sans-serif, system-ui, sans-serif; font-size: 14px; color: #111827; background: #ffffff; border: 1px solid #e5e7eb; border-radius: 8px; outline: none; transition: border-color 150ms ease, box-shadow 150ms ease; } .ds-input::placeholder { color: #9ca3af; } .ds-input:focus { border-color: #4f46e5; box-shadow: 0 0 0 2px #c7d2fe; }"
+    },
+    {
+      "name": "Reader Toggle Chip & Mastered Badge",
+      "kind": "chip",
+      "refersTo": "chip-active",
+      "description": "Bascule de confort de lecture (numéros de vers) et badge pilule de fable maîtrisée.",
+      "html": "<div class=\"ds-chip-row\"><button type=\"button\" aria-pressed=\"true\" class=\"ds-chip-active\"># Vers</button><button type=\"button\" aria-pressed=\"false\" class=\"ds-chip-idle\"># Vers</button><span class=\"ds-badge-mastered\"><svg class=\"ds-badge-icon\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><circle cx=\"12\" cy=\"12\" r=\"10\"/><path d=\"m9 12 2 2 4-4\"/></svg>Récitée</span></div>",
+      "css": ".ds-chip-row { display: inline-flex; align-items: center; gap: 8px; font-family: Inter, ui-sans-serif, system-ui, sans-serif; } .ds-chip-active { padding: 6px 10px; font-size: 12px; font-weight: 500; color: #4338ca; background: #eef2ff; border: 1px solid #c7d2fe; border-radius: 8px; cursor: pointer; transition: background-color 150ms ease; } .ds-chip-active:focus-visible, .ds-chip-idle:focus-visible { outline: 2px solid #4f46e5; outline-offset: 2px; } .ds-chip-idle { padding: 6px 10px; font-size: 12px; font-weight: 500; color: #4b5563; background: #ffffff; border: 1px solid #e5e7eb; border-radius: 8px; cursor: pointer; transition: background-color 150ms ease; } .ds-chip-idle:hover { background: #f9fafb; } .ds-badge-mastered { display: inline-flex; align-items: center; gap: 4px; padding: 2px 10px; font-size: 12px; font-weight: 500; color: #166534; background: #dcfce7; border-radius: 9999px; } .ds-badge-icon { width: 14px; height: 14px; }"
+    },
+    {
+      "name": "Validated Verse & Glossary Annotation",
+      "kind": "custom",
+      "refersTo": "verse-validated",
+      "description": "Composant signature : vers validé souligné en Laurier et terme XVIIe annoté ouvrant sa définition.",
+      "html": "<div class=\"ds-verse-stack\"><p class=\"ds-verse-validated\">La Cigale, ayant chanté tout l'été,</p><p class=\"ds-verse-reading\">Se trouva fort <span class=\"ds-terme\" tabindex=\"0\">dépourvue</span> quand la bise fut venue.</p><div class=\"ds-popover\" role=\"tooltip\"><span class=\"ds-popover-term\">dépourvue</span><p class=\"ds-popover-def\">Privée de provisions ou de ressources nécessaires.</p></div></div>",
+      "css": ".ds-verse-stack { display: flex; flex-direction: column; gap: 12px; max-width: 480px; } .ds-verse-validated { margin: 0; padding: 6px 16px; font-family: Lora, Georgia, serif; font-size: 19px; line-height: 1.625; color: #1f2937; background: #f0fdf4; border-left: 4px solid #22c55e; border-radius: 0 4px 4px 0; } .ds-verse-reading { margin: 0; font-family: Lora, Georgia, serif; font-size: 19px; line-height: 1.625; color: #1f2937; } .ds-terme { text-decoration: underline dotted #4f46e5; text-underline-offset: 4px; text-decoration-thickness: 1.5px; cursor: help; transition: color 150ms ease; } .ds-terme:hover, .ds-terme:focus-visible { color: #4f46e5; outline: none; } .ds-popover { max-width: 300px; background: #ffffff; border: 1px solid #a5b4fc; border-radius: 8px; padding: 12px 16px; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1); } .ds-popover-term { display: block; font-family: Lora, Georgia, serif; font-style: italic; font-weight: 600; font-size: 14px; color: #4338ca; margin-bottom: 4px; } .ds-popover-def { margin: 0; font-family: Lora, Georgia, serif; font-size: 14px; line-height: 1.625; color: #374151; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "La Bibliothèque Éclairée",
+    "overview": "L'interface de Les Fables de La Fontaine marie une rigueur éditoriale contemporaine à une grande clarté pédagogique. Les feuillets de lecture et de récitation en papier blanc reposent avec légèreté sur un fond lumineux à peine teinté, laissant aux vers classiques toute leur respiration. Le chrome applicatif — onglets, réglages de lecture, filtres et tiroir latéral — reste raffiné, précis et retenu afin de s'effacer devant le texte dès que la lecture ou la mémorisation commence.\n\nCette esthétique lumineuse et littéraire sans austérité tient à distance deux écueils opposés : ni « vieux grimoire poussiéreux » aux textures vieillies et ornements lourds, ni « tableau de bord SaaS froid » saturé de widgets et de cadres techniques. Les rares notes ludiques — plume dorée du logo, jeu 3D du Corbeau et du Renard, validation progressive en vert laurier — accompagnent l'effort d'apprentissage sans jamais rompre le calme de la page.",
+    "keyCharacteristics": [
+      "Clarté éditoriale lumineuse : feuillets blancs sur fond Brume Lavande et hiérarchie typographique centrée sur le vers.",
+      "Contrôles raffinés et retenus : boutons, onglets et filtres compacts qui guident sans rivaliser avec le poème.",
+      "Retour pédagogique immédiat : codage couleur sémantique net entre réussite (Laurier), hésitation vocale (Ambre) et erreur de frappe (Carmin).",
+      "Adaptabilité intergénérationnelle : taille de police réglable, numérotation discrète et navigation claire sur bureau, tablette et mobile."
+    ],
+    "rules": [
+      {
+        "name": "The Quiet Ink Rule",
+        "body": "L'Encre Indigo signale l'action active, le focus et les annotations du lexique ; elle n'envahit jamais les grandes surfaces de fond de carte, qui restent en Papier Blanc pour préserver le confort de lecture.",
+        "section": "colors"
+      },
+      {
+        "name": "The Semantic Feedback Rule",
+        "body": "Le Laurier, l'Ambre Vocal et le Carmin Erreur portent exclusivement l'état pédagogique (validé, manqué à l'oral, erreur de frappe) et les insignes de progression ou de jeu — jamais de décoration arbitraire.",
+        "section": "colors"
+      },
+      {
+        "name": "The Two-Voice Type Rule",
+        "body": "Tout ce qui appartient à l'œuvre (titres de fables, vers, citations, définitions du XVIIe siècle) se compose en sérif (Lora ou Cormorant Garamond) ; tout ce qui appartient à l'outil (onglets, boutons, filtres, numéros de vers, scores) se compose en Inter.",
+        "section": "typography"
+      },
+      {
+        "name": "The Tabular Verse-Number Rule",
+        "body": "Les numéros de vers et compteurs utilisent tabular-nums en gris discret afin que la colonne gauche des strophes reste parfaitement alignée sans attirer l'œil.",
+        "section": "typography"
+      },
+      {
+        "name": "The Functional Depth Rule",
+        "body": "Une ombre plus marquée signale toujours un changement de couche fonctionnelle (page → feuille → déclencheur flottant → infobulle/modale → tiroir) ; on n'empile jamais de fortes ombres à l'intérieur d'une carte déjà élevée.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "Do composer tous les titres de fables, vers et définitions en Lora (et le titre principal en Cormorant Garamond) tout en réservant Inter aux contrôles, boutons et métadonnées (The Two-Voice Type Rule).",
+      "Do garder les feuillets de lecture et de récitation en Papier Blanc (#ffffff) avec un interligne généreux (1.625 à 2.0) et une largeur maximale de 896px pour préserver le confort de lecture.",
+      "Do utiliser Laurier, Ambre Vocal et Carmin Erreur uniquement pour le retour pédagogique en temps réel et la progression (The Semantic Feedback Rule).",
+      "Do respecter le rayon de 8px sur les cartes, boutons et champs, et 12px sur les conteneurs d'onglets enveloppants.",
+      "Do préserver l'estompage du menu latéral (opacity: 0.5) pendant la saisie active et la navigation clavier complète (Échap sur les modales et infobulles, rôles tablist/tab et <dialog>)."
+    ],
+    "donts": [
+      "Don't introduire de textures parchemin, d'ornements baroques chargés ou de couleurs sombres façon tableau de bord SaaS qui contrediraient la luminosité de La Bibliothèque Éclairée.",
+      "Don't appliquer de texte en dégradé (bg-clip-text) ou de nouveaux dégradés violet/indigo décoratifs sur les titres et compteurs ; privilégier une encre unie et lisible (dette existante repérée dans MenuLogo.tsx à corriger lors d'une future passe /impeccable polish).",
+      "Don't empiler des ombres fortes (shadow-lg / shadow-xl) sur des sous-blocs à l'intérieur d'une carte déjà élevée (The Functional Depth Rule).",
+      "Don't utiliser l'Encre Indigo en grand aplat de fond derrière des vers ; réserver son intensité aux actions primaires, états actifs et repères lexicaux (The Quiet Ink Rule)."
+    ]
+  }
+}
